@@ -1,0 +1,25 @@
+# 本机配置：可能含 API key，**绝不入库**
+aiplay.config.json
+aiplay.config.local.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 打包产物（用 `python aiplay.py pack` 重新生成）
+dist/
+*.zip
+*.pyz
+
+# 生成产出（默认落在当前目录的 projects/ 下）
+projects/
+backup-*/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

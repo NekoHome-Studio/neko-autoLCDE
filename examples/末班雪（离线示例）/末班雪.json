@@ -1,0 +1,931 @@
+{
+  "format": "lcde",
+  "version": 1,
+  "kind": "project",
+  "generator": "aiplay 1.0.0",
+  "characters": [
+    {
+      "format": "lcde",
+      "version": 1,
+      "kind": "character",
+      "generator": "lcde 1.0.0",
+      "id": "老周",
+      "name": "老周",
+      "camp": "四等小站·值班员",
+      "nameColor": "E8D8B0",
+      "campColor": "8A7440",
+      "express": [
+        0,
+        300
+      ],
+      "portraits": [
+        {
+          "image": "01_常态.png",
+          "rect": [
+            89.745,
+            179.49,
+            179.49,
+            358.98
+          ]
+        },
+        {
+          "image": "02_笑.png",
+          "rect": [
+            89.745,
+            179.49,
+            179.49,
+            358.98
+          ]
+        },
+        {
+          "image": "03_皱眉.png",
+          "rect": [
+            89.745,
+            179.49,
+            179.49,
+            358.98
+          ]
+        },
+        {
+          "image": "04_叹气.png",
+          "rect": [
+            89.745,
+            179.49,
+            179.49,
+            358.98
+          ]
+        }
+      ],
+      "head": "老周.png"
+    },
+    {
+      "format": "lcde",
+      "version": 1,
+      "kind": "character",
+      "generator": "lcde 1.0.0",
+      "id": "苏晚",
+      "name": "苏晚",
+      "camp": "旅客",
+      "nameColor": "AFC7E0",
+      "campColor": "5A6E80",
+      "express": [
+        0,
+        300
+      ],
+      "portraits": [
+        {
+          "image": "01_平静.png",
+          "rect": [
+            89.745,
+            179.49,
+            179.49,
+            358.98
+          ]
+        },
+        {
+          "image": "02_疑惑.png",
+          "rect": [
+            89.745,
+            179.49,
+            179.49,
+            358.98
+          ]
+        },
+        {
+          "image": "03_微笑.png",
+          "rect": [
+            89.745,
+            179.49,
+            179.49,
+            358.98
+          ]
+        },
+        {
+          "image": "04_低头.png",
+          "rect": [
+            89.745,
+            179.49,
+            179.49,
+            358.98
+          ]
+        }
+      ],
+      "head": "苏晚.png"
+    },
+    {
+      "format": "lcde",
+      "version": 1,
+      "kind": "character",
+      "generator": "lcde 1.0.0",
+      "id": "广播",
+      "name": "广播",
+      "camp": "车站广播",
+      "nameColor": "C8CDD4",
+      "campColor": "6A7078",
+      "express": [
+        0,
+        300
+      ],
+      "portraits": [
+        {
+          "image": "01_电波.png",
+          "rect": [
+            89.745,
+            179.49,
+            179.49,
+            358.98
+          ]
+        }
+      ],
+      "head": "广播.png"
+    },
+    {
+      "format": "lcde",
+      "version": 1,
+      "kind": "character",
+      "generator": "lcde 1.0.0",
+      "id": "巡道工",
+      "name": "巡道工",
+      "camp": "工务段",
+      "nameColor": "C8C8C8",
+      "campColor": "6A6A6A",
+      "express": [
+        0,
+        300
+      ],
+      "portraits": [
+        {
+          "image": "01_风雪.png",
+          "rect": [
+            89.745,
+            179.49,
+            179.49,
+            358.98
+          ]
+        }
+      ],
+      "head": "巡道工.png"
+    }
+  ],
+  "stories": [
+    {
+      "format": "lcde",
+      "version": 1,
+      "kind": "story",
+      "generator": "lcde 1.0.0",
+      "title": "末班雪",
+      "backgrounds": [
+        "候车厅·雪夜.png",
+        "月台·雪.png",
+        "铁路道口·夜.png"
+      ],
+      "characters": [
+        {
+          "path": "老周\\Config.ch"
+        },
+        {
+          "path": "苏晚\\Config.ch"
+        },
+        {
+          "path": "广播\\Config.ch"
+        },
+        {
+          "path": "巡道工\\Config.ch"
+        }
+      ],
+      "commands": [
+        {
+          "type": "BGChange",
+          "bgIndex": 0
+        },
+        {
+          "type": "BGName",
+          "name": "四等小站 · 候车厅"
+        },
+        {
+          "type": "BGM",
+          "path": "event:/BGM/hall_night"
+        },
+        {
+          "type": "Say",
+          "character": 65535,
+          "conversation": "候车厅只有一盏顶灯亮着。长椅空着，时刻表还在，纸已经黄了。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "Say",
+          "character": 65535,
+          "conversation": "老周把搪瓷缸放在铁皮炉上，听水响。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "SFX",
+          "path": "event:/SFX/kettle"
+        },
+        {
+          "type": "CIn",
+          "character": 0,
+          "face": 0,
+          "place": 403.873,
+          "time": 0.45
+        },
+        {
+          "type": "SFX",
+          "path": "event:/SFX/wind"
+        },
+        {
+          "type": "Say",
+          "character": 65535,
+          "conversation": "风把门顶开一条缝。一个女人带着一身雪进来。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "SFX",
+          "path": "event:/SFX/door"
+        },
+        {
+          "type": "CChange",
+          "portrait": 0,
+          "face": 2
+        },
+        {
+          "type": "CMove",
+          "portrait": 0,
+          "position": 403.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "CIn",
+          "character": 1,
+          "face": 0,
+          "place": 583.873,
+          "time": 0.45
+        },
+        {
+          "type": "CMove",
+          "portrait": 0,
+          "position": 223.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 1,
+          "conversation": "末班车。几点。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "Say",
+          "character": 0,
+          "conversation": "……几点都一样。这站没有末班车。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "Say",
+          "character": 1,
+          "conversation": "时刻表上写着，二十三点四十。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "CChange",
+          "portrait": 0,
+          "face": 3
+        },
+        {
+          "type": "CMove",
+          "portrait": 0,
+          "position": 223.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 0,
+          "conversation": "写着。挂了十年了。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "SFX",
+          "path": "event:/SFX/light_burst"
+        },
+        {
+          "type": "Say",
+          "character": 2,
+          "conversation": "播报：K7xx 次，本线末班，已于十年前的今日停运。请旅客自行安排。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "CChange",
+          "portrait": 1,
+          "face": 1
+        },
+        {
+          "type": "CMove",
+          "portrait": 1,
+          "position": 583.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 1,
+          "conversation": "……十年前的今日。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "Say",
+          "character": 0,
+          "conversation": "每年的今日都有人来。你们记性真好。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "CChange",
+          "portrait": 1,
+          "face": 3
+        },
+        {
+          "type": "CMove",
+          "portrait": 1,
+          "position": 583.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 1,
+          "conversation": "我不是记性好。我在等人。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "Say",
+          "character": 65535,
+          "conversation": "老周没接话，把水从炉上端下来，倒进两个缸子。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "WaitSecond",
+          "skipable": true,
+          "time": 0.8
+        },
+        {
+          "type": "CChange",
+          "portrait": 0,
+          "face": 0
+        },
+        {
+          "type": "CMove",
+          "portrait": 0,
+          "position": 223.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 0,
+          "conversation": "外面冷。进来坐。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "COut",
+          "portrait": 1,
+          "time": 0.4
+        },
+        {
+          "type": "COut",
+          "portrait": 0,
+          "time": 0.4
+        },
+        {
+          "type": "BGChange",
+          "bgIndex": 1
+        },
+        {
+          "type": "BGName",
+          "name": "四等小站 · 月台"
+        },
+        {
+          "type": "BGM",
+          "path": "event:/BGM/snow_theme"
+        },
+        {
+          "type": "SFX",
+          "path": "event:/SFX/steps_snow"
+        },
+        {
+          "type": "Say",
+          "character": 65535,
+          "conversation": "月台的雪没扫。铁轨埋在雪里，只在中间亮出两道细光。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "CIn",
+          "character": 1,
+          "face": 0,
+          "place": 403.873,
+          "time": 0.45
+        },
+        {
+          "type": "CIn",
+          "character": 0,
+          "face": 0,
+          "place": 223.873,
+          "time": 0.45
+        },
+        {
+          "type": "CMove",
+          "portrait": 0,
+          "position": 583.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "SFX",
+          "path": "event:/SFX/light_burst"
+        },
+        {
+          "type": "CIn",
+          "character": 3,
+          "face": 0,
+          "place": 403.873,
+          "time": 0.45
+        },
+        {
+          "type": "Say",
+          "character": 3,
+          "conversation": "周师傅！三号道岔冻住了，撬杠撬不动。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "CChange",
+          "portrait": 1,
+          "face": 2
+        },
+        {
+          "type": "CMove",
+          "portrait": 1,
+          "position": 223.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 0,
+          "conversation": "冻住就冻着。今晚没有车。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "Say",
+          "character": 3,
+          "conversation": "……行。那我回去烤火。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "COut",
+          "portrait": 2,
+          "time": 0.4
+        },
+        {
+          "type": "Say",
+          "character": 1,
+          "conversation": "他刚才跑得挺急。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "Say",
+          "character": 0,
+          "conversation": "他说了三十二年「今晚没有车」。习惯了。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "WaitSecond",
+          "skipable": true,
+          "time": 0.6
+        },
+        {
+          "type": "CChange",
+          "portrait": 0,
+          "face": 3
+        },
+        {
+          "type": "CMove",
+          "portrait": 0,
+          "position": 583.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 1,
+          "conversation": "十年前的今晚，这趟车从这儿过。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "Say",
+          "character": 1,
+          "conversation": "他在车上。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "CChange",
+          "portrait": 1,
+          "face": 0
+        },
+        {
+          "type": "CMove",
+          "portrait": 1,
+          "position": 223.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 0,
+          "conversation": "……",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "Say",
+          "character": 0,
+          "conversation": "哪一趟。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "Say",
+          "character": 1,
+          "conversation": "我不说。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "CShake",
+          "duration": 0.4,
+          "strengthX": 6,
+          "strengthY": 6,
+          "randomness": 20,
+          "vibrato": 12,
+          "portrait": 0,
+          "fadeOut": true
+        },
+        {
+          "type": "SFX",
+          "path": "event:/SFX/wind"
+        },
+        {
+          "type": "Say",
+          "character": 65535,
+          "conversation": "雪忽然密了一阵，把轨面重新盖住。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "COut",
+          "portrait": 1,
+          "time": 0.4
+        },
+        {
+          "type": "COut",
+          "portrait": 0,
+          "time": 0.4
+        },
+        {
+          "type": "BGChange",
+          "bgIndex": 0
+        },
+        {
+          "type": "BGName",
+          "name": "四等小站 · 候车厅"
+        },
+        {
+          "type": "BGM",
+          "path": "event:/BGM/hall_night"
+        },
+        {
+          "type": "SFX",
+          "path": "event:/SFX/door"
+        },
+        {
+          "type": "Say",
+          "character": 65535,
+          "conversation": "两人回到厅里，炉子上还剩一点热。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "CIn",
+          "character": 0,
+          "face": 0,
+          "place": 223.873,
+          "time": 0.45
+        },
+        {
+          "type": "CIn",
+          "character": 1,
+          "face": 0,
+          "place": 583.873,
+          "time": 0.45
+        },
+        {
+          "type": "CChange",
+          "portrait": 0,
+          "face": 1
+        },
+        {
+          "type": "CMove",
+          "portrait": 0,
+          "position": 223.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 0,
+          "conversation": "喝点。站里的水，不收钱。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "CChange",
+          "portrait": 1,
+          "face": 2
+        },
+        {
+          "type": "CMove",
+          "portrait": 1,
+          "position": 583.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 1,
+          "conversation": "谢谢。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "WaitSecond",
+          "skipable": true,
+          "time": 0.5
+        },
+        {
+          "type": "CChange",
+          "portrait": 1,
+          "face": 3
+        },
+        {
+          "type": "CMove",
+          "portrait": 1,
+          "position": 583.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 1,
+          "conversation": "我知道他不会来。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "Say",
+          "character": 0,
+          "conversation": "嗯。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "Say",
+          "character": 1,
+          "conversation": "……你不问为什么？",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "CChange",
+          "portrait": 0,
+          "face": 0
+        },
+        {
+          "type": "CMove",
+          "portrait": 0,
+          "position": 223.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 0,
+          "conversation": "问了也一样。今晚雪停之前，你都在等。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "CFront",
+          "portrait": 0,
+          "hideOthers": true
+        },
+        {
+          "type": "Say",
+          "character": 0,
+          "conversation": "我陪着。反正值班室也只有我一个人。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "CFront",
+          "portrait": 1,
+          "hideOthers": false
+        },
+        {
+          "type": "CChange",
+          "portrait": 1,
+          "face": 2
+        },
+        {
+          "type": "CMove",
+          "portrait": 1,
+          "position": 583.873,
+          "time": 0,
+          "ease": "Linear"
+        },
+        {
+          "type": "Say",
+          "character": 1,
+          "conversation": "……好。",
+          "hideOthers": false,
+          "horizontal": "Center",
+          "vertical": "Middle"
+        },
+        {
+          "type": "WaitClick"
+        },
+        {
+          "type": "WaitClick"
+        }
+      ]
+    }
+  ],
+  "saveDir": "examples\\末班雪（离线示例）\\save"
+}

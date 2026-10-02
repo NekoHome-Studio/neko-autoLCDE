@@ -1,0 +1,8 @@
+# 统一行尾：源码走 LF，Windows 批处理必须 CRLF，二进制别碰
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.png binary
+*.jpg binary
+*.zip binary
+*.pyz binary

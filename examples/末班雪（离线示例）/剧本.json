@@ -1,0 +1,535 @@
+{
+  "format": "aiplay-script",
+  "version": 1,
+  "kind": "screenplay",
+  "title": "末班雪",
+  "logline": "四等小站的末班车十年前就停运了，可每个雪夜都有人来等；老周守着空站台，也守着一份没人来取的旧值班记录。",
+  "tone": "安静的冬日小品，克制、留白，结尾克制地暖一下",
+  "cast": [
+    {
+      "id": "老周",
+      "name": "老周",
+      "camp": "四等小站·值班员",
+      "nameColor": "E8D8B0",
+      "campColor": "8A7440",
+      "faces": [
+        "常态",
+        "笑",
+        "皱眉",
+        "叹气"
+      ],
+      "subtitles": false,
+      "notes": "五十多岁，话少，动作慢；围着旧棉大衣，手里总有个搪瓷缸。"
+    },
+    {
+      "id": "苏晚",
+      "name": "苏晚",
+      "camp": "旅客",
+      "nameColor": "AFC7E0",
+      "campColor": "5A6E80",
+      "faces": [
+        "平静",
+        "疑惑",
+        "微笑",
+        "低头"
+      ],
+      "subtitles": false,
+      "notes": "三十岁上下，风衣上落着雪；一直在看时刻表，说话很轻。"
+    },
+    {
+      "id": "广播",
+      "name": "广播",
+      "camp": "车站广播",
+      "nameColor": "C8CDD4",
+      "campColor": "6A7078",
+      "faces": [
+        "电波"
+      ],
+      "subtitles": true,
+      "notes": "字幕型角色，只出名字框，从不上屏。"
+    },
+    {
+      "id": "巡道工",
+      "name": "巡道工",
+      "camp": "工务段",
+      "nameColor": "C8C8C8",
+      "campColor": "6A6A6A",
+      "faces": [
+        "风雪"
+      ],
+      "subtitles": false,
+      "notes": "龙套，两句词，拎着信号灯。"
+    }
+  ],
+  "backgrounds": [
+    {
+      "name": "候车厅·雪夜.png",
+      "label": "四等小站 · 候车厅",
+      "notes": ""
+    },
+    {
+      "name": "月台·雪.png",
+      "label": "四等小站 · 月台",
+      "notes": ""
+    },
+    {
+      "name": "铁路道口·夜.png",
+      "label": "铁路道口 · 夜",
+      "notes": ""
+    }
+  ],
+  "audio": {
+    "bgm": [
+      {
+        "key": "hall",
+        "path": "event:/BGM/hall_night",
+        "usage": "候车厅，安静的主旋律"
+      },
+      {
+        "key": "snow",
+        "path": "event:/BGM/snow_theme",
+        "usage": "户外雪夜，单薄的弦乐"
+      },
+      {
+        "key": "ending",
+        "path": "event:/BGM/ending",
+        "usage": "结尾，克制地暖一下"
+      }
+    ],
+    "sfx": [
+      {
+        "key": "wind",
+        "path": "event:/SFX/wind",
+        "usage": "风雪环境音"
+      },
+      {
+        "key": "bell",
+        "path": "event:/SFX/station_bell",
+        "usage": "站铃"
+      },
+      {
+        "key": "kettle",
+        "path": "event:/SFX/kettle",
+        "usage": "水壶烧开"
+      },
+      {
+        "key": "door",
+        "path": "event:/SFX/door",
+        "usage": "推拉门"
+      },
+      {
+        "key": "steps",
+        "path": "event:/SFX/steps_snow",
+        "usage": "踩雪"
+      },
+      {
+        "key": "train",
+        "path": "event:/SFX/train_pass",
+        "usage": "远处车过"
+      },
+      {
+        "key": "whistle",
+        "path": "event:/SFX/whistle",
+        "usage": "汽笛"
+      },
+      {
+        "key": "paper",
+        "path": "event:/SFX/paper",
+        "usage": "翻纸"
+      },
+      {
+        "key": "light",
+        "path": "event:/SFX/light_burst",
+        "usage": "灯光明灭"
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "index": 1,
+      "title": "候车厅·末班",
+      "background": "候车厅·雪夜.png",
+      "label": "四等小站 · 候车厅",
+      "summary": "雪夜，老周烧水值夜。苏晚推门进来，问末班车。广播播报：本线末班车已停运十年。",
+      "beats": [
+        "老周烧水，站里只有一盏灯",
+        "苏晚进门抖雪，径直看时刻表",
+        "广播播报停运",
+        "苏晚说她在等人，老周没接话"
+      ],
+      "notes": [
+        "空旷长镜头：一盏灯、一个搪瓷缸、一整面墙的时刻表"
+      ],
+      "lines": [
+        {
+          "kind": "narr",
+          "text": "候车厅只有一盏顶灯亮着。长椅空着，时刻表还在，纸已经黄了。"
+        },
+        {
+          "kind": "narr",
+          "text": "老周把搪瓷缸放在铁皮炉上，听水响。"
+        },
+        {
+          "kind": "sfx",
+          "cue": "kettle"
+        },
+        {
+          "kind": "shot",
+          "text": "全景：空旷候车厅，灯只亮一盏；缓推至铁皮炉。"
+        },
+        {
+          "kind": "enter",
+          "who": "老周",
+          "face": "常态",
+          "slot": "center",
+          "time": 0.45
+        },
+        {
+          "kind": "sfx",
+          "cue": "wind"
+        },
+        {
+          "kind": "narr",
+          "text": "风把门顶开一条缝。一个女人带着一身雪进来。"
+        },
+        {
+          "kind": "sfx",
+          "cue": "door"
+        },
+        {
+          "kind": "face",
+          "who": "老周",
+          "face": "皱眉"
+        },
+        {
+          "kind": "enter",
+          "who": "苏晚",
+          "face": "平静",
+          "slot": "right",
+          "time": 0.45
+        },
+        {
+          "kind": "move",
+          "who": "老周",
+          "slot": "left",
+          "time": 0.0
+        },
+        {
+          "kind": "say",
+          "who": "苏晚",
+          "text": "末班车。几点。"
+        },
+        {
+          "kind": "say",
+          "who": "老周",
+          "text": "……几点都一样。这站没有末班车。"
+        },
+        {
+          "kind": "say",
+          "who": "苏晚",
+          "text": "时刻表上写着，二十三点四十。"
+        },
+        {
+          "kind": "face",
+          "who": "老周",
+          "face": "叹气"
+        },
+        {
+          "kind": "say",
+          "who": "老周",
+          "text": "写着。挂了十年了。"
+        },
+        {
+          "kind": "sfx",
+          "cue": "light"
+        },
+        {
+          "kind": "board",
+          "text": "播报：K7xx 次，本线末班，已于十年前的今日停运。请旅客自行安排。"
+        },
+        {
+          "kind": "say",
+          "who": "苏晚",
+          "text": "……十年前的今日。",
+          "face": "疑惑"
+        },
+        {
+          "kind": "say",
+          "who": "老周",
+          "text": "每年的今日都有人来。你们记性真好。"
+        },
+        {
+          "kind": "say",
+          "who": "苏晚",
+          "text": "我不是记性好。我在等人。",
+          "face": "低头"
+        },
+        {
+          "kind": "narr",
+          "text": "老周没接话，把水从炉上端下来，倒进两个缸子。"
+        },
+        {
+          "kind": "pause",
+          "seconds": 0.8
+        },
+        {
+          "kind": "say",
+          "who": "老周",
+          "text": "外面冷。进来坐。",
+          "face": "常态"
+        },
+        {
+          "kind": "wait"
+        }
+      ],
+      "bgm": "hall"
+    },
+    {
+      "index": 2,
+      "title": "月台·道岔",
+      "background": "月台·雪.png",
+      "label": "四等小站 · 月台",
+      "summary": "两人上到月台看轨面。巡道工来报道岔冻住。苏晚说，她等的人十年前就在这条线上。",
+      "beats": [
+        "雪落在铁轨上，轨面亮",
+        "巡道工报道岔冻住",
+        "苏晚说她等的人在这条线上",
+        "老周问了半句又咽回去"
+      ],
+      "notes": [
+        "俯拍铁轨：雪落进轨腰；巡道工信号灯的红光扫过"
+      ],
+      "lines": [
+        {
+          "kind": "sfx",
+          "cue": "steps"
+        },
+        {
+          "kind": "narr",
+          "text": "月台的雪没扫。铁轨埋在雪里，只在中间亮出两道细光。"
+        },
+        {
+          "kind": "enter",
+          "who": "苏晚",
+          "face": "平静",
+          "slot": "center",
+          "time": 0.45
+        },
+        {
+          "kind": "enter",
+          "who": "老周",
+          "face": "常态",
+          "slot": "left",
+          "time": 0.45
+        },
+        {
+          "kind": "move",
+          "who": "苏晚",
+          "slot": "right",
+          "time": 0.0
+        },
+        {
+          "kind": "shot",
+          "text": "俯拍：雪落进轨腰，两道铁光延伸出画。"
+        },
+        {
+          "kind": "sfx",
+          "cue": "light"
+        },
+        {
+          "kind": "enter",
+          "who": "巡道工",
+          "face": "风雪",
+          "slot": "center",
+          "time": 0.45
+        },
+        {
+          "kind": "say",
+          "who": "巡道工",
+          "text": "周师傅！三号道岔冻住了，撬杠撬不动。"
+        },
+        {
+          "kind": "say",
+          "who": "老周",
+          "text": "冻住就冻着。今晚没有车。",
+          "face": "皱眉"
+        },
+        {
+          "kind": "say",
+          "who": "巡道工",
+          "text": "……行。那我回去烤火。"
+        },
+        {
+          "kind": "exit",
+          "who": "巡道工",
+          "time": 0.4
+        },
+        {
+          "kind": "say",
+          "who": "苏晚",
+          "text": "他刚才跑得挺急。"
+        },
+        {
+          "kind": "say",
+          "who": "老周",
+          "text": "他说了三十二年「今晚没有车」。习惯了。"
+        },
+        {
+          "kind": "pause",
+          "seconds": 0.6
+        },
+        {
+          "kind": "say",
+          "who": "苏晚",
+          "text": "十年前的今晚，这趟车从这儿过。",
+          "face": "低头"
+        },
+        {
+          "kind": "say",
+          "who": "苏晚",
+          "text": "他在车上。"
+        },
+        {
+          "kind": "say",
+          "who": "老周",
+          "text": "……",
+          "face": "常态"
+        },
+        {
+          "kind": "say",
+          "who": "老周",
+          "text": "哪一趟。"
+        },
+        {
+          "kind": "say",
+          "who": "苏晚",
+          "text": "我不说。"
+        },
+        {
+          "kind": "shake",
+          "who": "苏晚",
+          "strength": 6.0
+        },
+        {
+          "kind": "sfx",
+          "cue": "wind"
+        },
+        {
+          "kind": "narr",
+          "text": "雪忽然密了一阵，把轨面重新盖住。"
+        },
+        {
+          "kind": "wait"
+        }
+      ],
+      "bgm": "snow"
+    },
+    {
+      "index": 3,
+      "title": "候车厅·热水",
+      "background": "候车厅·雪夜.png",
+      "label": "四等小站 · 候车厅",
+      "summary": "回到候车厅。老周给她倒热水。苏晚说她其实知道那人不会来；老周说那他陪她等到雪停。",
+      "beats": [
+        "两缸热水，一人一个",
+        "苏晚承认她知道结果",
+        "老周不问理由",
+        "老周说陪她等到雪停"
+      ],
+      "notes": [
+        "近景：两缸热水冒着白气；对话全部压在中景"
+      ],
+      "lines": [
+        {
+          "kind": "sfx",
+          "cue": "door"
+        },
+        {
+          "kind": "narr",
+          "text": "两人回到厅里，炉子上还剩一点热。"
+        },
+        {
+          "kind": "enter",
+          "who": "老周",
+          "face": "常态",
+          "slot": "left",
+          "time": 0.45
+        },
+        {
+          "kind": "enter",
+          "who": "苏晚",
+          "face": "平静",
+          "slot": "right",
+          "time": 0.45
+        },
+        {
+          "kind": "shot",
+          "text": "特写：两只搪瓷缸，白气慢慢升起来。"
+        },
+        {
+          "kind": "say",
+          "who": "老周",
+          "text": "喝点。站里的水，不收钱。",
+          "face": "笑"
+        },
+        {
+          "kind": "say",
+          "who": "苏晚",
+          "text": "谢谢。",
+          "face": "微笑"
+        },
+        {
+          "kind": "pause",
+          "seconds": 0.5
+        },
+        {
+          "kind": "say",
+          "who": "苏晚",
+          "text": "我知道他不会来。",
+          "face": "低头"
+        },
+        {
+          "kind": "say",
+          "who": "老周",
+          "text": "嗯。"
+        },
+        {
+          "kind": "say",
+          "who": "苏晚",
+          "text": "……你不问为什么？"
+        },
+        {
+          "kind": "say",
+          "who": "老周",
+          "text": "问了也一样。今晚雪停之前，你都在等。",
+          "face": "常态"
+        },
+        {
+          "kind": "front",
+          "who": "老周",
+          "hide": true
+        },
+        {
+          "kind": "say",
+          "who": "老周",
+          "text": "我陪着。反正值班室也只有我一个人。"
+        },
+        {
+          "kind": "undim",
+          "who": "苏晚"
+        },
+        {
+          "kind": "say",
+          "who": "苏晚",
+          "text": "……好。",
+          "face": "微笑"
+        },
+        {
+          "kind": "wait"
+        }
+      ],
+      "bgm": "hall"
+    }
+  ],
+  "warnings": []
+}

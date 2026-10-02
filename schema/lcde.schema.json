@@ -1,0 +1,1099 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lcde.local/schema/lcde.schema.json",
+  "title": "LCDE 规范 JSON 格式",
+  "description": "Soalin/LCDE 角色与剧本的规范化交换格式，版本 1。由 tools/schema/generate.py 生成，请勿手改。见 SPEC.md。",
+  "x-generator": "lcde 1.0.0",
+  "$defs": {
+    "envelope": {
+      "type": "object",
+      "required": [
+        "format",
+        "version",
+        "kind"
+      ],
+      "properties": {
+        "format": {
+          "const": "lcde"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1
+        },
+        "kind": {
+          "type": "string"
+        },
+        "generator": {
+          "type": "string"
+        }
+      }
+    },
+    "color": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{6}$",
+      "description": "6 位十六进制 RGB，**不带 '#'**"
+    },
+    "characterRef": {
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "description": "剧本 characters 里的下标（规范写法），或别名 / 路径（书写便利）"
+    },
+    "backgroundRef": {
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ],
+      "description": "backgrounds 里的下标（规范写法），或背景路径（书写便利）"
+    },
+    "command": {
+      "title": "命令",
+      "oneOf": [
+        {
+          "title": "Say 说话",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "Say"
+            },
+            "character": {
+              "$ref": "#/$defs/characterRef",
+              "description": "角色（剧本 characters 的下标，或别名/路径）"
+            },
+            "conversation": {
+              "type": "string",
+              "description": "对话内容"
+            },
+            "hideOthers": {
+              "type": "boolean",
+              "description": "隐藏其他角色"
+            },
+            "horizontal": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "Center",
+                    "Flush",
+                    "Geometry",
+                    "Justified",
+                    "Left",
+                    "Right"
+                  ]
+                },
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 32
+                }
+              ],
+              "description": "水平对齐（HorizontalAlignmentOptions 的名称或原始整数）"
+            },
+            "vertical": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "Baseline",
+                    "Bottom",
+                    "Capline",
+                    "Geometry",
+                    "Middle",
+                    "Top"
+                  ]
+                },
+                {
+                  "type": "integer",
+                  "minimum": 256,
+                  "maximum": 8192
+                }
+              ],
+              "description": "垂直对齐（VerticalAlignmentOptions 的名称或原始整数）"
+            }
+          }
+        },
+        {
+          "title": "Synchronization 同步",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "Synchronization"
+            },
+            "commands": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/command"
+              }
+            }
+          }
+        },
+        {
+          "title": "Queue 队列",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "Queue"
+            },
+            "commands": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/command"
+              }
+            }
+          }
+        },
+        {
+          "title": "WaitClick 等待点击",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "WaitClick"
+            }
+          }
+        },
+        {
+          "title": "WaitSecond 等待秒数",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "WaitSecond"
+            },
+            "skipable": {
+              "type": "boolean",
+              "description": "可跳过"
+            },
+            "time": {
+              "type": "number",
+              "description": "时长"
+            }
+          }
+        },
+        {
+          "title": "CChange 角色立绘",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "CChange"
+            },
+            "portrait": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "立绘（当前屏幕上立绘实例的下标）"
+            },
+            "face": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "表情（角色立绘目录里的图片序号）"
+            }
+          }
+        },
+        {
+          "title": "CIn 角色进入",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "CIn"
+            },
+            "character": {
+              "$ref": "#/$defs/characterRef",
+              "description": "角色（剧本 characters 的下标，或别名/路径）"
+            },
+            "face": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "表情（角色立绘目录里的图片序号）"
+            },
+            "place": {
+              "type": "number",
+              "description": "位置"
+            },
+            "time": {
+              "type": "number",
+              "description": "时长"
+            }
+          }
+        },
+        {
+          "title": "CJump 角色跳跃",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "CJump"
+            },
+            "high": {
+              "type": "number",
+              "description": "高度"
+            },
+            "time": {
+              "type": "number",
+              "description": "时长"
+            },
+            "vibrato": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647,
+              "description": "震动频率"
+            },
+            "portrait": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "立绘（当前屏幕上立绘实例的下标）"
+            }
+          }
+        },
+        {
+          "title": "CMove 角色移动",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "CMove"
+            },
+            "portrait": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "立绘（当前屏幕上立绘实例的下标）"
+            },
+            "position": {
+              "type": "number",
+              "description": "位置"
+            },
+            "time": {
+              "type": "number",
+              "description": "时长"
+            },
+            "ease": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "Flash",
+                    "INTERNAL_Custom",
+                    "INTERNAL_Zero",
+                    "InBack",
+                    "InBounce",
+                    "InCirc",
+                    "InCubic",
+                    "InElastic",
+                    "InExpo",
+                    "InFlash",
+                    "InOutBack",
+                    "InOutBounce",
+                    "InOutCirc",
+                    "InOutCubic",
+                    "InOutElastic",
+                    "InOutExpo",
+                    "InOutFlash",
+                    "InOutQuad",
+                    "InOutQuart",
+                    "InOutQuint",
+                    "InOutSine",
+                    "InQuad",
+                    "InQuart",
+                    "InQuint",
+                    "InSine",
+                    "Linear",
+                    "OutBack",
+                    "OutBounce",
+                    "OutCirc",
+                    "OutCubic",
+                    "OutElastic",
+                    "OutExpo",
+                    "OutFlash",
+                    "OutQuad",
+                    "OutQuart",
+                    "OutQuint",
+                    "OutSine",
+                    "Unset"
+                  ]
+                },
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 37
+                }
+              ],
+              "description": "缓动方式（Ease 的名称或原始整数）"
+            }
+          }
+        },
+        {
+          "title": "COut 角色退出",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "COut"
+            },
+            "portrait": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 65535,
+              "description": "立绘（当前屏幕上立绘实例的下标）"
+            },
+            "time": {
+              "type": "number",
+              "description": "时长"
+            }
+          }
+        },
+        {
+          "title": "CShake 角色震动",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "CShake"
+            },
+            "duration": {
+              "type": "number",
+              "description": "持续时间"
+            },
+            "strengthX": {
+              "type": "number",
+              "description": "横向强度"
+            },
+            "strengthY": {
+              "type": "number",
+              "description": "纵向强度"
+            },
+            "randomness": {
+              "type": "number",
+              "description": "随机度"
+            },
+            "vibrato": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647,
+              "description": "震动频率"
+            },
+            "portrait": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "立绘（当前屏幕上立绘实例的下标）"
+            },
+            "fadeOut": {
+              "type": "boolean",
+              "description": "淡出"
+            }
+          }
+        },
+        {
+          "title": "BGChange 切换背景",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "BGChange"
+            },
+            "bgIndex": {
+              "$ref": "#/$defs/backgroundRef",
+              "description": "背景编号（backgrounds 的下标或路径）"
+            }
+          }
+        },
+        {
+          "title": "BGFade 背景淡入淡出",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "BGFade"
+            },
+            "bgIndex": {
+              "$ref": "#/$defs/backgroundRef",
+              "description": "背景编号（backgrounds 的下标或路径）"
+            },
+            "r": {
+              "type": "number",
+              "description": "红色"
+            },
+            "g": {
+              "type": "number",
+              "description": "绿色"
+            },
+            "b": {
+              "type": "number",
+              "description": "蓝色"
+            },
+            "time": {
+              "type": "number",
+              "description": "时长"
+            }
+          }
+        },
+        {
+          "title": "BGFadeBG 背景渐变",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "BGFadeBG"
+            },
+            "bgIndex": {
+              "$ref": "#/$defs/backgroundRef",
+              "description": "背景编号（backgrounds 的下标或路径）"
+            },
+            "time": {
+              "type": "number",
+              "description": "时长"
+            }
+          }
+        },
+        {
+          "title": "BGFadeIn 背景淡入",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "BGFadeIn"
+            },
+            "bgIndex": {
+              "$ref": "#/$defs/backgroundRef",
+              "description": "背景编号（backgrounds 的下标或路径）"
+            },
+            "r": {
+              "type": "number",
+              "description": "红色"
+            },
+            "g": {
+              "type": "number",
+              "description": "绿色"
+            },
+            "b": {
+              "type": "number",
+              "description": "蓝色"
+            },
+            "time": {
+              "type": "number",
+              "description": "时长"
+            }
+          }
+        },
+        {
+          "title": "BGFadeOut 背景淡出",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "BGFadeOut"
+            },
+            "bgIndex": {
+              "$ref": "#/$defs/backgroundRef",
+              "description": "背景编号（backgrounds 的下标或路径）"
+            },
+            "r": {
+              "type": "number",
+              "description": "红色"
+            },
+            "g": {
+              "type": "number",
+              "description": "绿色"
+            },
+            "b": {
+              "type": "number",
+              "description": "蓝色"
+            },
+            "time": {
+              "type": "number",
+              "description": "时长"
+            }
+          }
+        },
+        {
+          "title": "BGName 背景名称",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "BGName"
+            },
+            "name": {
+              "type": "string",
+              "description": "名称"
+            }
+          }
+        },
+        {
+          "title": "BGMove 背景移动",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "BGMove"
+            },
+            "targetX": {
+              "type": "number",
+              "description": "目标 X"
+            },
+            "targetY": {
+              "type": "number",
+              "description": "目标 Y"
+            },
+            "duration": {
+              "type": "number",
+              "description": "持续时间"
+            },
+            "withCharacter": {
+              "type": "boolean",
+              "description": "跟随角色"
+            }
+          }
+        },
+        {
+          "title": "BGScale 背景缩放",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "BGScale"
+            },
+            "targetX": {
+              "type": "number",
+              "description": "目标 X"
+            },
+            "targetY": {
+              "type": "number",
+              "description": "目标 Y"
+            },
+            "duration": {
+              "type": "number",
+              "description": "持续时间"
+            },
+            "withCharacter": {
+              "type": "boolean",
+              "description": "跟随角色"
+            }
+          }
+        },
+        {
+          "title": "BGShakePos 背景位置震动",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "BGShakePos"
+            },
+            "duration": {
+              "type": "number",
+              "description": "持续时间"
+            },
+            "strengthX": {
+              "type": "number",
+              "description": "横向强度"
+            },
+            "strengthY": {
+              "type": "number",
+              "description": "纵向强度"
+            },
+            "vibrato": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647,
+              "description": "震动频率"
+            },
+            "randomness": {
+              "type": "number",
+              "description": "随机度"
+            },
+            "fadeOut": {
+              "type": "boolean",
+              "description": "淡出"
+            },
+            "random": {
+              "type": "boolean",
+              "description": "随机"
+            },
+            "withCharacter": {
+              "type": "boolean",
+              "description": "跟随角色"
+            }
+          }
+        },
+        {
+          "title": "BGShakeRotation 背景旋转震动",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "BGShakeRotation"
+            },
+            "duration": {
+              "type": "number",
+              "description": "持续时间"
+            },
+            "strength": {
+              "type": "number",
+              "description": "强度"
+            },
+            "vibrato": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647,
+              "description": "震动频率"
+            },
+            "randomness": {
+              "type": "number",
+              "description": "随机度"
+            },
+            "fadeOut": {
+              "type": "boolean",
+              "description": "淡出"
+            },
+            "random": {
+              "type": "boolean",
+              "description": "随机"
+            },
+            "withCharacter": {
+              "type": "boolean",
+              "description": "跟随角色"
+            }
+          }
+        },
+        {
+          "title": "BGShakeScale 背景缩放震动",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "BGShakeScale"
+            },
+            "duration": {
+              "type": "number",
+              "description": "持续时间"
+            },
+            "strengthX": {
+              "type": "number",
+              "description": "横向强度"
+            },
+            "strengthY": {
+              "type": "number",
+              "description": "纵向强度"
+            },
+            "vibrato": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647,
+              "description": "震动频率"
+            },
+            "randomness": {
+              "type": "number",
+              "description": "随机度"
+            },
+            "fadeOut": {
+              "type": "boolean",
+              "description": "淡出"
+            },
+            "random": {
+              "type": "boolean",
+              "description": "随机"
+            },
+            "withCharacter": {
+              "type": "boolean",
+              "description": "跟随角色"
+            }
+          }
+        },
+        {
+          "title": "BGM 背景音乐",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "BGM"
+            },
+            "path": {
+              "type": "string",
+              "description": "路径"
+            }
+          }
+        },
+        {
+          "title": "SFX 音效",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "SFX"
+            },
+            "path": {
+              "type": "string",
+              "description": "路径"
+            }
+          }
+        },
+        {
+          "title": "CFront 角色前置",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "CFront"
+            },
+            "portrait": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "立绘（当前屏幕上立绘实例的下标）"
+            },
+            "hideOthers": {
+              "type": "boolean",
+              "description": "隐藏其他角色"
+            }
+          }
+        },
+        {
+          "title": "CEmo 角色表情",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "const": "CEmo"
+            },
+            "portrait": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "立绘（当前屏幕上立绘实例的下标）"
+            },
+            "emo": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "表情（游戏内置表情图集下标）"
+            }
+          }
+        }
+      ]
+    },
+    "portrait": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "image",
+        "rect"
+      ],
+      "properties": {
+        "image": {
+          "type": "string",
+          "description": "相对角色目录的图片文件名；顺序即 face 索引"
+        },
+        "rect": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number"
+          },
+          "description": "立绘裁剪 x, y, width, height（UI 像素）"
+        }
+      }
+    },
+    "character": {
+      "title": "角色",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "version",
+        "kind",
+        "id"
+      ],
+      "properties": {
+        "format": {
+          "const": "lcde"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1
+        },
+        "kind": {
+          "const": "character"
+        },
+        "generator": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[^\\\\/]+(\\\\[^\\\\/]+)*$",
+          "description": "角色目录，相对 Character\\（可多级，但不能以分隔符开头/结尾）"
+        },
+        "name": {
+          "type": "string",
+          "description": "角色显示名"
+        },
+        "camp": {
+          "type": "string",
+          "description": "阵营 / 头衔"
+        },
+        "nameColor": {
+          "$ref": "#/$defs/color"
+        },
+        "campColor": {
+          "$ref": "#/$defs/color"
+        },
+        "express": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          },
+          "description": "表情叠加图偏移 (x, y)，默认 [0, 300]"
+        },
+        "portraits": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/portrait"
+          },
+          "description": "顺序即 face 索引，必须与磁盘图片数量一致"
+        },
+        "head": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "头像文件名（信息性；实际取 Character\\Heads\\<id>.<ext>）"
+        }
+      }
+    },
+    "story": {
+      "title": "剧本",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "version",
+        "kind",
+        "title"
+      ],
+      "properties": {
+        "format": {
+          "const": "lcde"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1
+        },
+        "kind": {
+          "const": "story"
+        },
+        "generator": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^\\\\/:*?\"<>|]+$",
+          "description": "剧本文件名（无扩展名），不能含路径分隔符或 Windows 非法字符"
+        },
+        "backgrounds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "相对 BG\\ 的图片路径，含扩展名（.png .jpg .jpeg .bmp .tiff .webp）"
+        },
+        "characters": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "相对 Character\\ 的 .ch 路径"
+                  },
+                  "alias": {
+                    "type": "string",
+                    "description": "供命令里用别名引用"
+                  }
+                }
+              }
+            ]
+          },
+          "description": "字符串简写或 {path, alias} 对象"
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/command"
+          }
+        }
+      }
+    },
+    "project": {
+      "title": "工程",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "version",
+        "kind"
+      ],
+      "properties": {
+        "format": {
+          "const": "lcde"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1
+        },
+        "kind": {
+          "const": "project"
+        },
+        "generator": {
+          "type": "string"
+        },
+        "saveDir": {
+          "type": "string"
+        },
+        "settings": {
+          "type": "object"
+        },
+        "characters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/character"
+          }
+        },
+        "stories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/story"
+          }
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/character"
+    },
+    {
+      "$ref": "#/$defs/story"
+    },
+    {
+      "$ref": "#/$defs/project"
+    }
+  ]
+}

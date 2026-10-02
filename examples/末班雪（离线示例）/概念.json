@@ -1,0 +1,191 @@
+{
+  "title": "末班雪",
+  "logline": "四等小站的末班车十年前就停运了，可每个雪夜都有人来等；老周守着空站台，也守着一份没人来取的旧值班记录。",
+  "tone": "安静的冬日小品，克制、留白，结尾克制地暖一下",
+  "cast": [
+    {
+      "id": "老周",
+      "name": "老周",
+      "camp": "四等小站·值班员",
+      "nameColor": "E8D8B0",
+      "campColor": "8A7440",
+      "faces": [
+        "常态",
+        "笑",
+        "皱眉",
+        "叹气"
+      ],
+      "notes": "五十多岁，话少，动作慢；围着旧棉大衣，手里总有个搪瓷缸。"
+    },
+    {
+      "id": "苏晚",
+      "name": "苏晚",
+      "camp": "旅客",
+      "nameColor": "AFC7E0",
+      "campColor": "5A6E80",
+      "faces": [
+        "平静",
+        "疑惑",
+        "微笑",
+        "低头"
+      ],
+      "notes": "三十岁上下，风衣上落着雪；一直在看时刻表，说话很轻。"
+    },
+    {
+      "id": "广播",
+      "name": "广播",
+      "camp": "车站广播",
+      "nameColor": "C8CDD4",
+      "campColor": "6A7078",
+      "subtitles": true,
+      "faces": [
+        "电波"
+      ],
+      "notes": "字幕型角色，只出名字框，从不上屏。"
+    },
+    {
+      "id": "巡道工",
+      "name": "巡道工",
+      "camp": "工务段",
+      "nameColor": "C8C8C8",
+      "campColor": "6A6A6A",
+      "faces": [
+        "风雪"
+      ],
+      "notes": "龙套，两句词，拎着信号灯。"
+    }
+  ],
+  "backgrounds": [
+    {
+      "name": "候车厅·雪夜.png",
+      "label": "四等小站 · 候车厅"
+    },
+    {
+      "name": "月台·雪.png",
+      "label": "四等小站 · 月台"
+    },
+    {
+      "name": "铁路道口·夜.png",
+      "label": "铁路道口 · 夜"
+    }
+  ],
+  "audio": {
+    "bgm": [
+      {
+        "key": "hall",
+        "path": "event:/BGM/hall_night",
+        "usage": "候车厅，安静的主旋律"
+      },
+      {
+        "key": "snow",
+        "path": "event:/BGM/snow_theme",
+        "usage": "户外雪夜，单薄的弦乐"
+      },
+      {
+        "key": "ending",
+        "path": "event:/BGM/ending",
+        "usage": "结尾，克制地暖一下"
+      }
+    ],
+    "sfx": [
+      {
+        "key": "wind",
+        "path": "event:/SFX/wind",
+        "usage": "风雪环境音"
+      },
+      {
+        "key": "bell",
+        "path": "event:/SFX/station_bell",
+        "usage": "站铃"
+      },
+      {
+        "key": "kettle",
+        "path": "event:/SFX/kettle",
+        "usage": "水壶烧开"
+      },
+      {
+        "key": "door",
+        "path": "event:/SFX/door",
+        "usage": "推拉门"
+      },
+      {
+        "key": "steps",
+        "path": "event:/SFX/steps_snow",
+        "usage": "踩雪"
+      },
+      {
+        "key": "train",
+        "path": "event:/SFX/train_pass",
+        "usage": "远处车过"
+      },
+      {
+        "key": "whistle",
+        "path": "event:/SFX/whistle",
+        "usage": "汽笛"
+      },
+      {
+        "key": "paper",
+        "path": "event:/SFX/paper",
+        "usage": "翻纸"
+      },
+      {
+        "key": "light",
+        "path": "event:/SFX/light_burst",
+        "usage": "灯光明灭"
+      }
+    ]
+  },
+  "scenes": [
+    {
+      "index": 1,
+      "title": "候车厅·末班",
+      "background": "候车厅·雪夜.png",
+      "label": "四等小站 · 候车厅",
+      "bgm": "hall",
+      "summary": "雪夜，老周烧水值夜。苏晚推门进来，问末班车。广播播报：本线末班车已停运十年。",
+      "beats": [
+        "老周烧水，站里只有一盏灯",
+        "苏晚进门抖雪，径直看时刻表",
+        "广播播报停运",
+        "苏晚说她在等人，老周没接话"
+      ],
+      "notes": [
+        "空旷长镜头：一盏灯、一个搪瓷缸、一整面墙的时刻表"
+      ]
+    },
+    {
+      "index": 2,
+      "title": "月台·道岔",
+      "background": "月台·雪.png",
+      "label": "四等小站 · 月台",
+      "bgm": "snow",
+      "summary": "两人上到月台看轨面。巡道工来报道岔冻住。苏晚说，她等的人十年前就在这条线上。",
+      "beats": [
+        "雪落在铁轨上，轨面亮",
+        "巡道工报道岔冻住",
+        "苏晚说她等的人在这条线上",
+        "老周问了半句又咽回去"
+      ],
+      "notes": [
+        "俯拍铁轨：雪落进轨腰；巡道工信号灯的红光扫过"
+      ]
+    },
+    {
+      "index": 3,
+      "title": "候车厅·热水",
+      "background": "候车厅·雪夜.png",
+      "label": "四等小站 · 候车厅",
+      "bgm": "hall",
+      "summary": "回到候车厅。老周给她倒热水。苏晚说她其实知道那人不会来；老周说那他陪她等到雪停。",
+      "beats": [
+        "两缸热水，一人一个",
+        "苏晚承认她知道结果",
+        "老周不问理由",
+        "老周说陪她等到雪停"
+      ],
+      "notes": [
+        "近景：两缸热水冒着白气；对话全部压在中景"
+      ]
+    }
+  ]
+}
