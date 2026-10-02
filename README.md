@@ -12,6 +12,7 @@ aiplay-1.0.0\
 ├─ aiplay\              生成器本体
 ├─ lcde\ + lcde.py      内置的 LCDE 格式内核（构建/校验游戏文件，可单独用）
 ├─ schema\              规范格式的 JSON Schema
+├─ LICENSE              MIT 许可
 ├─ examples\            离线生成样例（不需要密钥就能看它产出什么）
 └─ build-info.json      打包信息（版本、构建时间、来源）
 ```
@@ -238,3 +239,16 @@ python aiplay.py pack --out ..\dist --public     # 公开分发：抹掉 build-i
 
 产物：便携目录 + `.zip` + 单文件 `.pyz`。
 `examples\` 里的示例是用**相对路径**生成的，所以整包搬到任何地方都能直接用。
+
+---
+
+## 十一、许可
+
+MIT License —— 见 [`LICENSE`](LICENSE)。© 2026 NekoHome-Studio。
+
+也就是说：可以自由使用、修改、再分发（含商用），只需保留版权与许可声明。
+软件按「原样」提供，不含任何担保。
+
+许可覆盖的是**本仓库的代码**（`aiplay/`、`lcde/`、`schema/`、文档与示例）。
+它不覆盖 LCDE 游戏本体、游戏内素材或任何第三方插件——那些不包含在本仓库里。
+

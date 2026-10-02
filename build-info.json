@@ -1,9 +1,10 @@
 {
   "name": "aiplay",
   "version": "1.0.0",
-  "builtAt": "2026-10-02T20:29:38",
+  "builtAt": "2026-10-02T20:37:03",
   "lcdeVersion": "1.0.0",
   "formatVersion": 1,
+  "license": "MIT",
   "entry": "aiplay.py",
   "singleFile": "aiplay.pyz",
   "note": "包内自带 LCDE 格式内核（lcde/），可脱离 LCDE 仓库独立运行。",

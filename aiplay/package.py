@@ -197,6 +197,11 @@ def _standalone_readme() -> Path | None:
     )
 
 
+def _license_source() -> Path | None:
+    """许可文件：仓库里是 ``aiplay/LICENSE``，独立包里在包根。"""
+    return _find_first(PKG_DIR / "LICENSE", TOOL_ROOT / "LICENSE")
+
+
 # --------------------------------------------------------------------------- #
 # 主流程
 # --------------------------------------------------------------------------- #
@@ -261,6 +266,12 @@ def build_package(*, out_dir: Path | str | None = None, version: str = __version
     written += len(LAUNCHER_CMD.encode("utf-8"))
     count += 1
 
+    license_file = _license_source()
+    if license_file is not None:
+        copy(license_file, stage / "LICENSE")
+    else:                                                     # pragma: no cover
+        result.warnings.append("没找到 LICENSE，包内不带许可文件")
+
     # ---- 格式内核（原样，不改动） ---------------------------------------- #
     for path in kernel_files:
         copy(path, stage / "lcde" / path.name)
@@ -293,6 +304,7 @@ def build_package(*, out_dir: Path | str | None = None, version: str = __version
         "builtAt": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "lcdeVersion": LCDE_VERSION,
         "formatVersion": FORMAT_VERSION,
+        "license": "MIT",
         "entry": "aiplay.py",
         "singleFile": "%s.pyz" % PACKAGE_PREFIX,
         "note": "包内自带 LCDE 格式内核（lcde/），可脱离 LCDE 仓库独立运行。",
@@ -461,6 +473,8 @@ def _make_pyz(dist: Path, stage: Path, log, result: PackResult) -> Path:
         entries.append(("lcde/%s" % path.name, path))
     for path in sorted((stage / "schema").glob("*.json")):
         entries.append(("schema/%s" % path.name, path))
+    if (stage / "LICENSE").is_file():
+        entries.append(("LICENSE", stage / "LICENSE"))
 
     with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("__main__.py", ZIPAPP_MAIN)
