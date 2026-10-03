@@ -24,6 +24,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 
 __all__ = [
@@ -39,9 +40,14 @@ PKG_DIR = Path(__file__).resolve().parent
 def _detect_tool_root() -> Path:
     """工具的根目录：仓库里是 ``tools/``，分发包里是包根。
 
-    单文件 ``.pyz`` 下 ``PKG_DIR.parent`` 是归档内路径（不是真实目录），
-    这种情况退回当前工作目录，保证配置/产出有地方可写。
+    两种情况都退回当前工作目录，因为那两种情况下 ``PKG_DIR`` 都不是「能长期写的地方」：
+
+    * 单文件 ``.pyz``：``PKG_DIR.parent`` 是归档**内部**路径，不是真实目录；
+    * 冻结的可执行文件（PyInstaller）：``__file__`` 指向进程的临时解包目录
+      ``_MEIPASS``，往里写配置会在进程退出时被删掉。
     """
+    if getattr(sys, "frozen", False) or hasattr(sys, "_MEIPASS"):
+        return Path.cwd()
     parent = PKG_DIR.parent
     return parent if parent.is_dir() else Path.cwd()
 

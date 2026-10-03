@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from pathlib import Path
+import sys
 
 from .bridge import BACKGROUND_SIZE, HEAD_SIZE, PORTRAIT_SIZE, STAGE_SIZE
 from .ir import Screenplay
@@ -20,10 +21,19 @@ from .paths import is_repo_mode
 
 __all__ = ["render_raw_script", "render_character_sheet", "render_notes", "render_report"]
 
-#: 报告里给出的命令必须跟**当前运行模式**一致：仓库里是 ``tools\aiplay.py``，
-#: 独立包里就是根目录的 ``aiplay.py``。否则用户照抄会找不到文件。
-_AIPLAY_ENTRY = r"tools\aiplay.py" if is_repo_mode() else "aiplay.py"
-_LCDE_ENTRY = r"..\..\tools\lcde.py" if is_repo_mode() else "lcde.py"
+#: 报告里给出的命令必须跟**当前运行形态**一致：仓库里是 ``tools\aiplay.py``，
+#: 独立包里是根目录的 ``aiplay.py``，冻结成 exe 后就是 ``aiplay.exe``。
+#: 否则用户照抄会找不到文件。冻结版里没有独立的内核入口，所以 ``_LCDE_ENTRY`` 为空，
+#: 报告会省掉「用工具构建」那一块。
+if getattr(sys, "frozen", False):
+    _AIPLAY_ENTRY = "aiplay.exe"
+    _LCDE_ENTRY = ""
+elif is_repo_mode():
+    _AIPLAY_ENTRY = r"tools\aiplay.py"
+    _LCDE_ENTRY = r"..\..\tools\lcde.py"
+else:
+    _AIPLAY_ENTRY = "aiplay.py"
+    _LCDE_ENTRY = "lcde.py"
 
 
 # --------------------------------------------------------------------------- #
@@ -370,14 +380,19 @@ def render_report(*, play: Screenplay, result, settings, options, artifacts: dic
         "robocopy $src $dst /E",
         "```",
         "",
-        "或者用工具构建（会自动备份被覆盖的文件）：",
-        "",
-        "```powershell",
-        "python %s --save-dir \"$env:USERPROFILE\\AppData\\LocalLow\\Soalin\\LCDE\" `"
-        % _LCDE_ENTRY,
-        "       project build %s --force" % (json_name or "剧本.json"),
-        "```",
-        "",
+    ]
+    if _LCDE_ENTRY:
+        lines += [
+            "或者用工具构建（会自动备份被覆盖的文件）：",
+            "",
+            "```powershell",
+            "python %s --save-dir \"$env:USERPROFILE\\AppData\\LocalLow\\Soalin\\LCDE\" `"
+            % _LCDE_ENTRY,
+            "       project build %s --force" % (json_name or "剧本.json"),
+            "```",
+            "",
+        ]
+    lines += [
         "## 七、下一步",
         "",
         "1. 读 `raw/剧本raw.txt` 改台词与节奏；改完重跑编译 **不需要再调 API**：",

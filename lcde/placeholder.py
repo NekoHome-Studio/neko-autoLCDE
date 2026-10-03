@@ -34,7 +34,12 @@ __all__ = [
     "PORTRAIT_SIZE",
     "HEAD_SIZE",
     "BACKGROUND_SIZE",
+    "STAGE_SIZE",
+    "ROOT_HALF_WIDTH",
     "editor_rect",
+    "fit_rect",
+    "place_for_center_x",
+    "parse_color",
     "color_for",
     "placeholder_png",
     "generate_for_document",
@@ -117,6 +122,20 @@ _CJK_FONTS = (
 # --------------------------------------------------------------------------- #
 # 配色
 # --------------------------------------------------------------------------- #
+
+def parse_color(value) -> tuple[int, int, int]:
+    """接受 ``"#RRGGBB"``、``"RRGGBB"`` 或 ``[r, g, b]``，返回 RGB 三元组。"""
+    if isinstance(value, (list, tuple)) and len(value) == 3:
+        return tuple(max(0, min(255, int(c))) for c in value)
+    if isinstance(value, str):
+        text = value.strip().lstrip("#")
+        if len(text) == 6:
+            try:
+                return tuple(int(text[i:i + 2], 16) for i in (0, 2, 4))
+            except ValueError:
+                pass
+    raise LcdeError("无法解析颜色: %r（应为 #RRGGBB 或 [r,g,b]）" % (value,))
+
 
 def color_for(key: str, *, saturation: float = 0.55, lightness: float = 0.45) -> tuple[int, int, int]:
     """由字符串稳定地派生一个可区分的颜色。"""
@@ -273,13 +292,18 @@ def _write(path: Path, data: bytes, force: bool, written: list[Path],
 
 
 def generate_for_document(document: dict, save_dir, *, force: bool = False,
-                          dry_run: bool = False, only: str = "all"):
+                          dry_run: bool = False, only: str = "all", palette: dict = None):
     """按规范文档生成占位素材。
+
+    ``palette`` 可覆盖自动配色的结果，键为 ``"char:<id>"`` / ``"bg:<相对路径>"``，
+    值为 ``"#RRGGBB"`` 或 ``[r, g, b]`` —— 拿到角色官方配色后填进来，
+    占位图就会用接近正式美术的颜色，试跑时更容易看出效果。
 
     返回 ``(written, skipped)`` 两个路径列表。``only`` ∈ ``all|portraits|heads|backgrounds``。
     """
     from .jsonfmt import character_from_doc
 
+    palette = {k: parse_color(v) for k, v in (palette or {}).items()}
     save_dir = Path(save_dir)
     kind = document.get("kind")
     if kind == "project":
@@ -298,7 +322,7 @@ def generate_for_document(document: dict, save_dir, *, force: bool = False,
     skipped: list[Path] = []
 
     for character in characters:
-        color = color_for("char:" + character.char_id)
+        color = palette.get("char:" + character.char_id) or color_for("char:" + character.char_id)
         char_dir = save_dir / "Character" / character.char_id
         for index, portrait in enumerate(character.portraits):
             if only in ("all", "portraits"):
@@ -326,7 +350,9 @@ def generate_for_document(document: dict, save_dir, *, force: bool = False,
                 continue
             rel = str(entry).replace("/", "\\")
             path = save_dir / "BG" / rel
-            color = color_for("bg:" + rel, saturation=0.30, lightness=0.30)
+            color = (palette.get("bg:" + rel)
+                     or palette.get("bg:" + win_path(rel).name)
+                     or color_for("bg:" + rel, saturation=0.30, lightness=0.30))
             label = win_path(rel).stem
             png = placeholder_png(
                 *BACKGROUND_SIZE, color,

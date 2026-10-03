@@ -450,6 +450,7 @@ def cmd_pack(args) -> int:
     try:
         result = build_package(out_dir=out, with_example=not args.no_example,
                                make_zip=not args.no_zip, make_pyz=not args.no_pyz,
+                               make_exe=args.exe, exe_python=args.exe_python,
                                verify=not args.no_verify, public=args.public, log=log)
     except OSError as exc:
         sys.stderr.write("打包失败：%s\n" % exc)
@@ -461,23 +462,32 @@ def cmd_pack(args) -> int:
         _out("")
         _out("离线示例（不需要密钥就能看产物）：")
         _out("  %s" % result.example)
+    if result.exe_path:
+        _out("")
+        _out("免装 Python 的 exe（直接 `aiplay.exe --help`，收件人机器上不需要 Python）：")
+        _out("  %s" % result.exe_path)
     if result.checks:
         _out("")
         _out("打包自检：")
         for item in result.checks:
-            _out("  %s %s —— %s" % ("✓" if item["ok"] else "✗", item["name"], item["detail"]))
+            mark = "○" if item.get("skipped") else ("✓" if item["ok"] else "✗")
+            _out("  %s %s —— %s" % (mark, item["name"], item["detail"]))
     if result.warnings:
         _out("")
         for message in result.warnings:
             _out("! %s" % message)
     _out("")
     if not result.ok:
-        _out("✗ 自检未全部通过，先别分发这个包。")
+        _out("✗ 有自检未通过，先别分发这个包。")
         return EXIT_ERROR
+    if any(item.get("skipped") for item in result.checks):
+        _out("○ 有检查被跳过（见上方说明），分发前请在普通终端里补验一次。")
     _out("用法：解压后")
     _out("  python aiplay.py doctor --ping")
     _out("  python aiplay.py gen --premise \"...\"")
     _out("或直接跑单文件版：python aiplay.pyz --help")
+    if result.exe_path:
+        _out("或直接跑 exe：%s --help（收件人机器上不需要 Python）" % result.exe_path.name)
     return EXIT_OK
 
 
@@ -576,6 +586,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--no-example", action="store_true", help="不生成 examples 离线示例")
     p.add_argument("--no-zip", action="store_true", help="不生成 zip")
     p.add_argument("--no-pyz", action="store_true", help="不生成单文件 .pyz")
+    p.add_argument("--exe", action="store_true",
+                   help="额外冻结一个免装 Python 的 aiplay.exe（需要 PyInstaller）")
+    p.add_argument("--exe-python", help="用哪个解释器跑 PyInstaller（默认当前解释器）")
     p.add_argument("--no-verify", action="store_true",
                    help="跳过打包自检（不建议：自检会在新目录里真跑一遍）")
     p.add_argument("--public", action="store_true",

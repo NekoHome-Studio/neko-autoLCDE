@@ -18,14 +18,26 @@ aiplay-1.0.0\
 ```
 
 也可以只用 **单文件版** `aiplay.pyz`：一个文件拷走就能跑（`python aiplay.pyz …`）。
+或者用 **免装 Python 的 exe**：`aiplay.exe --help`（27 MB，机器上完全不需要 Python）。
 
 ---
 
 ## 一、要求
 
-* **Python 3.9 或更高**（`python --version` 能跑就行）。没有任何第三方依赖。
+* **便携目录 / `.pyz`**：需要 **Python 3.9 或更高**（`python --version` 能跑就行）。
+  没有任何第三方依赖。
+* **`aiplay.exe`**：**不需要 Python**，双击或命令行直接跑（自带的运行时在里面）。
 * 一个**大模型 API 密钥**（除 `--provider mock` 之外都需要）。
 * Windows / macOS / Linux 都行；路径与编码都按各自平台处理。
+
+### 三种形态怎么选
+
+| 形态 | 适合 | 说明 |
+| --- | --- | --- |
+| `aiplay.exe` | **发给不装 Python 的人** | 单文件、直接跑、启动稍慢（每次要解包），约 27 MB |
+| `aiplay.pyz` | 自己用、机器上有 Python | 一个 0.13 MB 的文件，`python aiplay.pyz …` |
+| 便携目录 | 要改提示词 / 看源码 | 解压即用，`python aiplay.py`，附带示例与内置内核 |
+
 
 ---
 
@@ -49,6 +61,8 @@ python aiplay.py web
 
 ```powershell
 python aiplay.py gen --provider mock --premise "随便写点什么" --scenes 3
+# 用 exe 的话把 `python aiplay.py` 换成 `aiplay.exe` 即可
+aiplay.exe gen --provider mock --premise "随便写点什么" --scenes 3
 ```
 
 内置的是一段原创短剧《末班雪》，走的是完全相同的流水线（含校验与回喂闭环），
@@ -235,10 +249,24 @@ python aiplay.py web --token 我的口令    # 访问 URL 需要带 ?token=我�
 ```powershell
 python aiplay.py pack --out ..\dist              # 本地构建
 python aiplay.py pack --out ..\dist --public     # 公开分发：抹掉 build-info.json 里的本机路径
+python aiplay.py pack --exe                      # 额外冻结免装 Python 的 aiplay.exe（需 PyInstaller）
 ```
 
-产物：便携目录 + `.zip` + 单文件 `.pyz`。
+产物：便携目录 + `.zip` + 单文件 `.pyz`（`--exe` 再加一个 `aiplay.exe`）。
 `examples\` 里的示例是用**相对路径**生成的，所以整包搬到任何地方都能直接用。
+
+**exe 用 PyInstaller 冻结**，需要先装上（不想污染全局 site-packages 就用后者）：
+
+```powershell
+python -m pip install pyinstaller
+python -m pip install --target .pylibs pyinstaller pillow
+$env:PYTHONPATH = "<本目录>\.pylibs"     # 只在这条命令的环境里生效
+python aiplay.py pack --exe --exe-python "<另一个已装好 PyInstaller 的解释器>"
+```
+
+`pack --exe` 会在打包后**真的运行一次 exe**（跑完整的离线生成并检查产物），
+所以少收模块这类问题当场就能发现。若运行环境不允许 onefile 解包（例如受限的
+临时目录），这条检查会标成「○ 跳过」并提示在普通终端里补验，而不是谎报通过。
 
 ---
 

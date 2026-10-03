@@ -122,6 +122,7 @@ class PackResult:
     stage: Path
     zip_path: Path | None = None
     pyz_path: Path | None = None
+    exe_path: Path | None = None
     files: int = 0
     bytes_written: int = 0
     example: Path | None = None
@@ -130,7 +131,8 @@ class PackResult:
 
     @property
     def ok(self) -> bool:
-        return all(item["ok"] for item in self.checks) if self.checks else True
+        """全部检查通过才算通过；被跳过的检查不算失败（但也不算通过，会显式标出来）。"""
+        return all(item["ok"] for item in self.checks if not item.get("skipped"))
 
     def summary(self) -> str:
         parts = ["便携目录 %s（%d 个文件，%.2f MB）"
@@ -141,6 +143,9 @@ class PackResult:
         if self.pyz_path:
             parts.append("单文件 %s（%.2f MB）"
                          % (self.pyz_path, self.pyz_path.stat().st_size / 1024 / 1024))
+        if self.exe_path:
+            parts.append("免装 Python 的 exe %s（%.2f MB）"
+                         % (self.exe_path, self.exe_path.stat().st_size / 1024 / 1024))
         return "\n".join(parts)
 
 
@@ -208,11 +213,15 @@ def _license_source() -> Path | None:
 
 def build_package(*, out_dir: Path | str | None = None, version: str = __version__,
                   with_example: bool = True, make_zip: bool = True, make_pyz: bool = True,
+                  make_exe: bool = False, exe_python: str | None = None,
                   verify: bool = True, public: bool = False, log=None) -> PackResult:
     """打出独立工具包。
 
     ``public=True`` 时会把打包机器相关的信息（本机检出路径、操作系统版本）
     从 ``build-info.json`` 里抹掉——准备公开分发时用这个。
+
+    ``make_exe=True`` 额外产出**免装 Python 的单文件 exe**（需要 PyInstaller，
+    见 :func:`_build_exe`）。
     """
     log = log or (lambda level, message: None)
     dist = Path(out_dir) if out_dir else (workspace_root() / "dist")
@@ -339,6 +348,10 @@ def build_package(*, out_dir: Path | str | None = None, version: str = __version
         result.pyz_path = _make_pyz(dist, stage, log, result)
         if verify:
             _verify_pyz(result.pyz_path, dist, log, result)
+    if make_exe:
+        result.exe_path = _build_exe(stage, dist, log, result, python_exe=exe_python)
+        if result.exe_path and verify:
+            _verify_exe(result.exe_path, dist, log, result)
     return result
 
 
@@ -346,7 +359,7 @@ def build_package(*, out_dir: Path | str | None = None, version: str = __version
 # 示例 / 自检
 # --------------------------------------------------------------------------- #
 
-def _run(cmd: list, cwd: Path, log_path: Path) -> int:
+def _run(cmd: list, cwd: Path, log_path: Path, *, env_extra: dict | None = None) -> int:
     """跑一个子进程，输出**重定向到文件**（不用管道，受限环境里更省事）。
 
     顺带关掉字节码落盘：自检是在要分发的目录里跑的，不能留下 ``__pycache__``。
@@ -355,8 +368,14 @@ def _run(cmd: list, cwd: Path, log_path: Path) -> int:
     env["PYTHONIOENCODING"] = "utf-8"
     env["PYTHONDONTWRITEBYTECODE"] = "1"
     for name in ("AIPLAY_CONFIG", "AIPLAY_PROVIDER", "AIPLAY_API_KEY",
-                 "DEEPSEEK_API_KEY", "OPENAI_API_KEY"):
+                 "DEEPSEEK_API_KEY", "OPENAI_API_KEY",
+                 # 产物不该随构建环境漂移：外部 PYTHONPATH 里可能挂着一个
+                 # 版本不匹配的 Pillow（会让占位图丢掉文字标签）或别的同名包。
+                 # 确实需要它时由 env_extra 显式传回来（冻结 exe 就是这么传 PyInstaller 的）。
+                 "PYTHONPATH", "PYTHONHOME"):
         env.pop(name, None)
+    if env_extra:
+        env.update(env_extra)
     with open(log_path, "w", encoding="utf-8", errors="replace") as handle:
         return subprocess.call([str(part) for part in cmd], cwd=str(cwd),
                                stdout=handle, stderr=subprocess.STDOUT, env=env)
@@ -370,9 +389,12 @@ def _prune(stage: Path) -> None:
         junk.unlink(missing_ok=True)
 
 
-def _record(result: PackResult, log, name: str, ok: bool, detail: str) -> bool:
-    result.checks.append({"name": name, "ok": bool(ok), "detail": detail})
-    log("info" if ok else "error", "%s %s：%s" % ("✓" if ok else "✗", name, detail))
+def _record(result: PackResult, log, name: str, ok: bool, detail: str,
+            *, skipped: bool = False) -> bool:
+    result.checks.append({"name": name, "ok": bool(ok), "detail": detail,
+                          "skipped": bool(skipped)})
+    mark = "○" if skipped else ("✓" if ok else "✗")
+    log("info" if (ok or skipped) else "error", "%s %s：%s" % (mark, name, detail))
     return ok
 
 
@@ -438,6 +460,132 @@ def _verify_pyz(pyz: Path, dist: Path, log, result: PackResult) -> None:
             detail += "；末尾：%s" % tail[-1]
     _record(result, log, "单文件版可运行", ok, detail)
     shutil.rmtree(tmp, ignore_errors=True)
+    log_file.unlink(missing_ok=True)
+
+
+# --------------------------------------------------------------------------- #
+# 免装 Python 的单文件 exe（PyInstaller）
+# --------------------------------------------------------------------------- #
+
+def _pyinstaller_hint() -> str:
+    return ("需要 PyInstaller。两种装法：\n"
+            "  python -m pip install pyinstaller\n"
+            "  # 不想污染全局 site-packages 时（本仓库就是这么做的）：\n"
+            "  python -m pip install --target .pylibs pyinstaller pillow\n"
+            "  $env:PYTHONPATH = \"<仓库>\\.pylibs\"   # 然后带着它跑 pack --exe\n"
+            "也可以用 --exe-python 指定另一个已经装好 PyInstaller 的解释器。")
+
+
+def _build_exe(stage: Path, dist: Path, log, result: PackResult,
+               *, python_exe: str | None = None) -> Path | None:
+    """把便携目录里的 ``aiplay.py`` 冻结成一个免装 Python 的 exe。
+
+    产物落在 ``dist/aiplay.exe``（onefile）。PyInstaller 会把 Python 运行时、
+    ``aiplay/``、``lcde/`` 与 ``schema/`` 一起塞进可执行文件里，
+    收件人机器上**不需要装 Python**。
+    """
+    python = str(python_exe or sys.executable)
+    work = dist / "_exe-build"
+    shutil.rmtree(work, ignore_errors=True)
+    work.mkdir(parents=True, exist_ok=True)
+    # 构建过程要用大量临时文件；把 TEMP 指到工作区内，受限环境下更稳
+    temp = work / "tmp"
+    temp.mkdir(parents=True, exist_ok=True)
+    log_file = dist / ".exe-build.log"
+
+    args = [
+        python, "-m", "PyInstaller",
+        "--noconfirm", "--clean",
+        "--onefile", "--console",
+        "--name", PACKAGE_PREFIX,
+        "--distpath", str(dist),
+        "--workpath", str(work),
+        "--specpath", str(work),
+        # 让静态分析找得到 aiplay / lcde（入口脚本是靠 sys.path 动态导入的）
+        "--paths", str(stage),
+        # lcde schema 之类的子命令要读这个数据文件（源路径必须绝对：
+        # PyInstaller 按 spec 所在目录解析相对路径，工作目录是 stage 也没用）
+        "--add-data", "%s%s%s" % (stage / "schema", os.pathsep, "schema"),
+        str(stage / "aiplay.py"),
+    ]
+    log("info", "用 PyInstaller 冻结 exe（解释器 %s）……" % python)
+    code = _run(args, cwd=stage, log_path=log_file,
+                env_extra={"PYTHONPATH": os.environ.get("PYTHONPATH", ""),
+                           "TEMP": str(temp), "TMP": str(temp), "TMPDIR": str(temp)})
+    if code != 0:
+        tail = log_file.read_text(encoding="utf-8", errors="replace").strip().splitlines()
+        detail = tail[-1] if tail else ""
+        if "No module named PyInstaller" in log_file.read_text(encoding="utf-8",
+                                                             errors="replace"):
+            detail = "未安装 PyInstaller"
+        _record(result, log, "冻结 exe", False, "退出码 %d；%s" % (code, detail))
+        result.warnings.append(_pyinstaller_hint())
+        log_file.unlink(missing_ok=True)
+        shutil.rmtree(work, ignore_errors=True)
+        return None
+
+    exe_name = "%s.exe" % PACKAGE_PREFIX if os.name == "nt" else PACKAGE_PREFIX
+    exe = dist / exe_name
+    if not exe.is_file():
+        _record(result, log, "冻结 exe", False, "PyInstaller 没有产出 %s" % exe_name)
+        shutil.rmtree(work, ignore_errors=True)
+        return None
+    _record(result, log, "冻结 exe", True,
+            "%s（%.1f MB）" % (exe.name, exe.stat().st_size / 1024 / 1024))
+    log_file.unlink(missing_ok=True)
+    shutil.rmtree(work, ignore_errors=True)      # 中间产物上百 MB，不留在 dist 里
+    return exe
+
+
+def _verify_exe(exe: Path, dist: Path, log, result: PackResult) -> None:
+    """exe 自检：真跑一次离线生成（放在临时目录里，检查完删掉）。
+
+    这一条特别重要：冻结包最容易出的问题就是**少收了模块**，
+    只有真的跑一遍完整流程（含写游戏文件与校验）才看得出来。
+
+    onefile 的引导器会在运行时往 ``%TEMP%`` 里解包，而某些受限环境
+    （例如沙箱、或 ``%TEMP%`` 被指向一个不允许建目录的地方）会让它报
+    ``Could not create temporary directory`` / ``Failed to create parent
+    directory structure``。那属于**环境**问题而不是 exe 的问题，所以这种情况记成
+    「跳过」并给出在正常终端里手动验证的命令，不谎报通过、也不误判失败。
+    """
+    tmp = dist / ".exe-check"
+    tmp_root = dist / ".exe-tmp"
+    shutil.rmtree(tmp, ignore_errors=True)
+    tmp_root.mkdir(parents=True, exist_ok=True)
+    log_file = dist / ".exe-check.log"
+    code = _run([exe, "--provider", "mock", "gen",
+                 "--premise", "exe 自检：雪夜的末班车", "--scenes", "2",
+                 "--scenes-per-call", "2", "--out", tmp],
+                cwd=dist, log_path=log_file,
+                env_extra={"TEMP": str(tmp_root), "TMP": str(tmp_root),
+                           "TMPDIR": str(tmp_root)})
+    text = log_file.read_text(encoding="utf-8", errors="replace")
+    produced = (tmp / "剧本.json").is_file() and (tmp / "save" / "Dialog").is_dir()
+    ok = code == 0 and produced
+
+    if not ok and ("temporary directory" in text.lower()
+                   or "parent directory structure" in text.lower()):
+        tail = text.strip().splitlines()
+        _record(result, log, "免装 Python 的 exe 可运行", False,
+                "当前环境不让 onefile 解包（%s），未能在本机验证"
+                % (tail[-1][:80] if tail else "解包失败"),
+                skipped=True)
+        result.warnings.append(
+            "exe 已生成，但当前环境阻止了 onefile 解包，因此没能在这里跑起来验证。"
+            "在普通终端里这样确认（把 TEMP 指到一个可写目录即可）：\n"
+            "  $env:TEMP = \"$env:USERPROFILE\\AppData\\Local\\Temp\"\n"
+            "  %s --provider mock gen --premise \"自检\" --scenes 2" % exe.name)
+    else:
+        detail = "退出码 %d" % code
+        if ok:
+            detail += "；产物齐全（含游戏文件）"
+        elif text.strip():
+            detail += "；末尾：%s" % text.strip().splitlines()[-1]
+        _record(result, log, "免装 Python 的 exe 可运行", ok, detail)
+
+    shutil.rmtree(tmp, ignore_errors=True)
+    shutil.rmtree(tmp_root, ignore_errors=True)
     log_file.unlink(missing_ok=True)
 
 

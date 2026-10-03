@@ -8,11 +8,15 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
+.pylibs/
+.wheels/
 
 # 打包产物（用 `python aiplay.py pack` 重新生成）
 dist/
 *.zip
 *.pyz
+# exe 约 27 MB：不要提交进版本库，发 GitHub Releases 当附件（或直接给需要的人）
+*.exe
 
 # 生成产出（默认落在当前目录的 projects/ 下）
 projects/

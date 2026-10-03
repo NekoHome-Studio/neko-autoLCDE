@@ -585,6 +585,80 @@ def cmd_commands(args) -> int:
     return EXIT_OK
 
 
+def cmd_char_refit(args) -> int:
+    """按各张立绘的**实际像素尺寸**重算 ``Rect``。
+
+    引擎的显示尺寸是按 ``rect.width = 源图宽 × (显示高度 / 源图高)`` 换算的，
+    而 ``rect`` 是逐个 face 存的。所以换掉美术资源（尤其是改了长宽比）之后
+    必须重算，否则会被拉伸变形。
+
+    默认按「正好填满 800×358.98 的舞台」计算，可以用 ``--display-height`` 改小留出余量。
+    """
+    from .images import image_size
+    from .model import RECT_NAME, _backup
+    from .placeholder import fit_rect
+
+    project = Project(args.save_dir)
+    character = project.load_character(args.id)
+    if not character.found or character.directory is None:
+        raise LcdeError("角色不存在或没有立绘: %s" % args.id)
+
+    images = scan_portrait_images(character.directory)
+    if not images:
+        raise LcdeError("角色目录里没有图片: %s" % character.directory)
+
+    display = args.display_height
+    rows = []
+    rects = []
+    for index, name in enumerate(images):
+        path = character.directory / name
+        width, height = image_size(path)
+        rect = fit_rect(width, height, display)
+        rects.append(rect)
+        old = character.portraits[index].rect if index < len(character.portraits) else None
+        rows.append([str(index), name, "%d×%d" % (width, height),
+                     "%.1f × %.1f" % (rect[2], rect[3]),
+                     "不变" if old == rect else ("新" if old is None else "**改动**")])
+
+    if args.json:
+        out = {"format": "lcde", "version": FORMAT_VERSION, "kind": "refit",
+               "character": character.char_id, "directory": str(character.directory),
+               "rects": [{"image": n, "rect": list(r)} for n, r in zip(images, rects)]}
+        if args.dry_run:
+            _out(dumps(out))
+            return EXIT_OK
+        _write_rect(character.directory, character.express, rects)
+        _out(dumps(out))
+        return EXIT_OK
+
+    _out("角色 %s —— 按实际图片尺寸重算 Rect" % character.char_id)
+    _out("  目录 : %s" % character.directory)
+    _out("  舞台 : 800 × 358.98；显示高度 %s" % (("%.2f" % display) if display else "358.98（填满）"))
+    _out(table(rows, ["face", "图片", "源图尺寸", "显示尺寸", "状态"]))
+    if args.dry_run:
+        _out("")
+        _out("（--dry-run，未写入）")
+        return EXIT_OK
+
+    _backup(character.directory / RECT_NAME)
+    _write_rect(character.directory, character.express, rects)
+    _out("")
+    _out("已写入 %s" % (character.directory / RECT_NAME))
+    return EXIT_OK
+
+
+def _write_rect(directory, express, rects) -> None:
+    from .binary import BinWriter
+    from .model import RECT_NAME
+
+    writer = BinWriter()
+    writer.f32(express[0]).f32(express[1])
+    for rect in rects:
+        for value in rect:
+            writer.f32(value)
+    (Path(directory) / RECT_NAME).write_bytes(writer.bytes())
+
+
 def cmd_placeholder(args) -> int:
     """按规范文档生成占位素材（立绘 / 头像 / 背景）。"""
     from .placeholder import generate_for_document
@@ -593,8 +667,18 @@ def cmd_placeholder(args) -> int:
     if not path.is_file():
         raise LcdeError("找不到输入文件: %s" % path)
     document = loads(path.read_text(encoding="utf-8-sig"))
+    palette = None
+    if args.palette:
+        palette_path = Path(args.palette)
+        if not palette_path.is_file():
+            raise LcdeError("找不到配色文件: %s" % palette_path)
+        palette = json.loads(palette_path.read_text(encoding="utf-8-sig"))
+        if not isinstance(palette, dict):
+            raise LcdeError("配色文件必须是一个 JSON 对象：{\"char:金笠\": \"#C9A227\", ...}")
+
     written, skipped = generate_for_document(
-        document, args.save_dir, force=args.force, dry_run=args.dry_run, only=args.only)
+        document, args.save_dir, force=args.force, dry_run=args.dry_run,
+        only=args.only, palette=palette)
 
     if args.json:
         _out(dumps({
@@ -688,6 +772,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--yes", action="store_true", help="确认执行不可逆的重命名")
     p.set_defaults(func=cmd_char_fix_order)
 
+    p = char.add_parser("refit", parents=[common],
+                        help="按各张立绘的实际像素尺寸重算 Rect（换素材后必做）")
+    p.add_argument("id")
+    p.add_argument("--display-height", type=float, default=None,
+                   help="立绘的显示高度（舞台 358.98，默认正好填满）")
+    p.add_argument("--dry-run", action="store_true", help="只显示计划，不写入")
+    p.set_defaults(func=cmd_char_refit)
+
     story = sub.add_parser("story", parents=[common],
                            help="剧本操作").add_subparsers(dest="action", required=True)
     story.add_parser("list", parents=[common], help="列出所有剧本").set_defaults(func=cmd_story_list)
@@ -724,6 +816,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("input", help="JSON 文件（kind = project / character / story）")
     p.add_argument("--only", choices=["all", "portraits", "heads", "backgrounds"],
                    default="all", help="只生成某一类")
+    p.add_argument("--palette", metavar="JSON",
+                   help='配色覆盖，如 {"char:金笠":"#C9A227","bg:客栈房·夜.png":"#2A2118"}')
     p.add_argument("--dry-run", action="store_true", help="只列出将生成的文件")
     p.add_argument("--force", action="store_true", help="覆盖已存在的文件")
     p.set_defaults(func=cmd_placeholder)
