@@ -6,7 +6,7 @@
 这个包是**独立**的：不需要 LCDE 仓库、不需要安装任何第三方库，包里自带格式内核。
 
 ```
-autoLCDE-1.0.0\
+autoLCDE-<版本>\
 ├─ autoLCDE.py            命令行入口（python autoLCDE.py …）
 ├─ autoLCDE.cmd           Windows 双击/命令行启动器（自动找 python）
 ├─ autoLCDE\              生成器本体
