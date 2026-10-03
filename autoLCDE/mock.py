@@ -2,9 +2,9 @@
 
 作用有两个：
 
-1. **自测**：``tools/tests/test_aiplay.py`` 用它做端到端测试（含校验失败→回喂重写的闭环）。
+1. **自测**：``tools/tests/test_autoLCDE.py`` 用它做端到端测试（含校验失败→回喂重写的闭环）。
 2. **试用**：在花钱买 token 之前，先看看生成器会产出什么样的剧本、
-   目录里会落哪些文件（``python tools/aiplay.py gen --provider mock ...``）。
+   目录里会落哪些文件（``python tools/autoLCDE.py gen --provider mock ...``）。
 
 内置的是一段**原创**短剧《末班雪》，六个场次，覆盖了全部可用演出手段
 （进入/退出/移动/换表情/前置压暗/震动/淡入淡出/字幕角色/BGM/SFX/停顿）。
@@ -13,7 +13,7 @@
 ``meta`` 里带的是结构化上下文（场次下标、概念表），真实客户端会忽略它，
 mock 用它决定该回哪一场。
 
-故障注入：``AIPLAY_MOCK_FLAWS=1``（或 ``--mock-flaws 1``）会让第一场里多出一条
+故障注入：``AUTOLCDE_MOCK_FLAWS=1``（或 ``--mock-flaws 1``）会让第一场里多出一条
 **故意非法**的 ``raw`` 命令，用来触发 validate 报错，从而验证「错误回喂 → 重写」
 这条路是通的。默认 0，即产出必然合法。
 """
@@ -280,7 +280,7 @@ PLAY = {
 
 
 class MockClient:
-    """接口与 :class:`aiplay.llm.ChatClient` 一致，但不发网络请求。"""
+    """接口与 :class:`autoLCDE.llm.ChatClient` 一致，但不发网络请求。"""
 
     def __init__(self, settings=None, log=None, flaws: int = 0) -> None:
         self.settings = settings

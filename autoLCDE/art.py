@@ -21,18 +21,18 @@ from .paths import is_repo_mode
 
 __all__ = ["render_raw_script", "render_character_sheet", "render_notes", "render_report"]
 
-#: 报告里给出的命令必须跟**当前运行形态**一致：仓库里是 ``tools\aiplay.py``，
-#: 独立包里是根目录的 ``aiplay.py``，冻结成 exe 后就是 ``aiplay.exe``。
+#: 报告里给出的命令必须跟**当前运行形态**一致：仓库里是 ``tools\autoLCDE.py``，
+#: 独立包里是根目录的 ``autoLCDE.py``，冻结成 exe 后就是 ``autoLCDE.exe``。
 #: 否则用户照抄会找不到文件。冻结版里没有独立的内核入口，所以 ``_LCDE_ENTRY`` 为空，
 #: 报告会省掉「用工具构建」那一块。
 if getattr(sys, "frozen", False):
-    _AIPLAY_ENTRY = "aiplay.exe"
+    _AUTOLCDE_ENTRY = "autoLCDE.exe"
     _LCDE_ENTRY = ""
 elif is_repo_mode():
-    _AIPLAY_ENTRY = r"tools\aiplay.py"
+    _AUTOLCDE_ENTRY = r"tools\autoLCDE.py"
     _LCDE_ENTRY = r"..\..\tools\lcde.py"
 else:
-    _AIPLAY_ENTRY = "aiplay.py"
+    _AUTOLCDE_ENTRY = "autoLCDE.py"
     _LCDE_ENTRY = "lcde.py"
 
 
@@ -141,7 +141,7 @@ def render_character_sheet(play: Screenplay) -> str:
     lines = [
         "# 《%s》立绘 / 背景 / 音频清单" % play.title,
         "",
-        "本文件由 `aiplay` 从剧本自动生成，交给美术与音频用。",
+        "本文件由 `autoLCDE` 从剧本自动生成，交给美术与音频用。",
         "**替换正式素材时保持同名同数量即可，剧本不需要改。**",
         "",
         "## 一、尺寸规格",
@@ -221,7 +221,7 @@ def render_notes(play: Screenplay) -> str:
     lines = [
         "# 《%s》分镜与制作备注" % play.title,
         "",
-        "本文件由 `aiplay` 自动生成，收录**引擎表达不了**的内容，供美术/音频/后期参考。",
+        "本文件由 `autoLCDE` 自动生成，收录**引擎表达不了**的内容，供美术/音频/后期参考。",
         "LCDE 没有运镜、快切、光效叠加，这些想法只能在动画版或后期剪辑里实现；",
         "游戏内以旁白 + 背景/立绘切换近似表达。",
         "",
@@ -300,7 +300,7 @@ def render_report(*, play: Screenplay, result, settings, options, artifacts: dic
     lines = [
         "# 《%s》生成报告" % play.title,
         "",
-        "> 由 `aiplay` 自动生成。本文件记录**这次生成是怎么来的**，"
+        "> 由 `autoLCDE` 自动生成。本文件记录**这次生成是怎么来的**，"
         "包括模型、用量、被自动修正过的内容与引擎校验结果。",
         "",
         "## 一、本次运行",
@@ -397,7 +397,7 @@ def render_report(*, play: Screenplay, result, settings, options, artifacts: dic
         "",
         "1. 读 `raw/剧本raw.txt` 改台词与节奏；改完重跑编译 **不需要再调 API**：",
         "   ```powershell",
-        "   python %s compile \"%s\"" % (_AIPLAY_ENTRY, Path(options.out_dir) / "剧本.json"),
+        "   python %s compile \"%s\"" % (_AUTOLCDE_ENTRY, Path(options.out_dir) / "剧本.json"),
         "   ```",
         "2. 结构要大改（加场、换角色）就重跑生成，或者手工改 `%s` 里的 `scenes`。"
         % (json_name or "剧本.json"),

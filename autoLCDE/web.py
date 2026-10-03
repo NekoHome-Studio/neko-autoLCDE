@@ -1,6 +1,6 @@
 """本地网页界面 —— 纯标准库 ``http.server``，不需要装任何前端工具链。
 
-    python tools/aiplay.py web            # 然后打开 http://127.0.0.1:8756
+    python tools/autoLCDE.py web            # 然后打开 http://127.0.0.1:8756
 
 界面做四件事：填密钥、填需求、看进度、读产出。
 
@@ -32,7 +32,7 @@ from .config import (
     config_path,
     resolve_settings,
 )
-from .errors import AIPlayError
+from .errors import AutoLCDEError
 from .ir import sanitize_title
 from .paths import projects_root
 from .pipeline import Pipeline, RunOptions
@@ -185,7 +185,7 @@ def start_run(payload: dict) -> RunState:
         _RUNS[run.id] = run
 
     def worker() -> None:
-        run.log("info", "aiplay %s 开始（模型 %s，密钥 %s）"
+        run.log("info", "autoLCDE %s 开始（模型 %s，密钥 %s）"
                 % (__version__, settings.model or "—", settings.masked_key() or "无"))
         run.log("info", "主题：%s" % options.premise.replace("\n", " ")[:120])
         pipeline = Pipeline(settings, options, log=run.log,
@@ -209,7 +209,7 @@ def start_run(payload: dict) -> RunState:
                 "artifacts": result.artifacts,
             }
             run.state = "done" if result.ok else "failed"
-        except AIPlayError as exc:
+        except AutoLCDEError as exc:
             run.log("error", str(exc))
             run.summary = {"ok": False, "error": str(exc)}
             run.state = "failed"
@@ -221,7 +221,7 @@ def start_run(payload: dict) -> RunState:
         finally:
             run.log("info", "结束（%.1fs）" % (time.time() - run.started))
 
-    threading.Thread(target=worker, name="aiplay-%s" % run.id, daemon=True).start()
+    threading.Thread(target=worker, name="autoLCDE-%s" % run.id, daemon=True).start()
     return run
 
 
@@ -230,8 +230,8 @@ def start_run(payload: dict) -> RunState:
 # --------------------------------------------------------------------------- #
 
 def _slug(text: str) -> str:
-    return (sanitize_title(text or "aiplay项目", fallback="aiplay项目")
-            .replace(" ", "")[:24] or "aiplay项目")
+    return (sanitize_title(text or "autoLCDE项目", fallback="autoLCDE项目")
+            .replace(" ", "")[:24] or "autoLCDE项目")
 
 
 def _safe_child(root: Path, relative: str) -> Path | None:
@@ -246,19 +246,19 @@ def _safe_child(root: Path, relative: str) -> Path | None:
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "aiplay/%s" % __version__
+    server_version = "autoLCDE/%s" % __version__
     token: str | None = None
     allow_lan = False
 
     # -- 工具 -------------------------------------------------------------- #
     def log_message(self, fmt, *args):                          # noqa: A003
-        if os.environ.get("AIPLAY_WEB_VERBOSE"):
+        if os.environ.get("AUTOLCDE_WEB_VERBOSE"):
             super().log_message(fmt, *args)
 
     def _authorized(self, query: dict) -> bool:
         if not self.token:
             return True
-        given = (query.get("token") or [""])[0] or self.headers.get("X-AIPlay-Token", "")
+        given = (query.get("token") or [""])[0] or self.headers.get("X-AutoLCDE-Token", "")
         return given == self.token
 
     def _send(self, status: int, body: bytes, content_type: str) -> None:
@@ -321,7 +321,7 @@ class Handler(BaseHTTPRequestHandler):
                     "endpoint": settings.endpoint,
                     "configPath": str(settings.config_path or config_path(None)),
                 }}
-            except AIPlayError as exc:
+            except AutoLCDEError as exc:
                 body = {"settings": None, "error": str(exc)}
             self._json(200, body)
             return
@@ -365,7 +365,7 @@ class Handler(BaseHTTPRequestHandler):
         if route == "/api/generate":
             try:
                 run = start_run(payload)
-            except (ConfigError, AIPlayError) as exc:
+            except (ConfigError, AutoLCDEError) as exc:
                 self._json(400, {"ok": False, "error": str(exc)})
                 return
             except Exception as exc:                            # noqa: BLE001
@@ -389,7 +389,7 @@ class Handler(BaseHTTPRequestHandler):
                 from .llm import make_client
                 client = make_client(settings, log=lambda *_a: None)
                 reply = client.ping()
-            except AIPlayError as exc:
+            except AutoLCDEError as exc:
                 self._json(200, {"ok": False, "error": "%s（%s）" % (exc, exc.hint)})
                 return
             except Exception as exc:                            # noqa: BLE001
@@ -422,7 +422,7 @@ def serve(*, host: str = "127.0.0.1", port: int = 8756, open_browser: bool = Fal
         raise ConfigError("端口 %d~%d 都被占用了：%s" % (port, port + 11, last_error))
 
     url = "http://%s:%d/%s" % (host, port, ("?token=%s" % token) if token else "")
-    print("aiplay 网页界面已启动：%s" % url)
+    print("autoLCDE 网页界面已启动：%s" % url)
     print("  · 生成过程在后台线程里跑，页面关掉也不影响")
     print("  · 密钥只留在内存；勾「记住」才会写进配置文件")
     print("  · Ctrl+C 结束")
@@ -447,7 +447,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>aiplay · LCDE 剧本生成器</title>
+<title>autoLCDE · LCDE 剧本生成器</title>
 <style>
   :root {
     --bg: #14161a; --panel: #1d2026; --panel2: #242830; --line: #313640;
@@ -517,7 +517,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 </head>
 <body>
 <header>
-  <h1>aiplay</h1>
+  <h1>autoLCDE</h1>
   <span class="sub">LCDE 剧本生成器 · 接外部大模型 API · 生成 → 编译 → 占位素材 → 校验</span>
   <span id="state" class="badge">未开始</span>
 </header>

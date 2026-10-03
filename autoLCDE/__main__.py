@@ -1,4 +1,4 @@
-"""``python -m aiplay`` 入口（在 ``tools/`` 目录下运行）。"""
+"""``python -m autoLCDE`` 入口（在 ``tools/`` 目录下运行）。"""
 
 from __future__ import annotations
 

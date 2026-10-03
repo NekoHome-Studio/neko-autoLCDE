@@ -1,12 +1,12 @@
-"""aiplay 命令行界面。
+"""autoLCDE 命令行界面。
 
-    python tools/aiplay.py --help
-    python tools/aiplay.py providers                 # 看看支持哪几家
-    python tools/aiplay.py init                      # 生成配置模板
+    python tools/autoLCDE.py --help
+    python tools/autoLCDE.py providers                 # 看看支持哪几家
+    python tools/autoLCDE.py init                      # 生成配置模板
     $env:DEEPSEEK_API_KEY = "sk-..."
-    python tools/aiplay.py doctor --ping             # 先确认密钥能用
-    python tools/aiplay.py gen --premise "雪夜，末班车十年前就停运了，可还有人每天来等"
-    python tools/aiplay.py web                       # 网页界面
+    python tools/autoLCDE.py doctor --ping             # 先确认密钥能用
+    python tools/autoLCDE.py gen --premise "雪夜，末班车十年前就停运了，可还有人每天来等"
+    python tools/autoLCDE.py web                       # 网页界面
 
 退出码与 ``lcde`` 对齐：``0`` 通过、``1`` 运行失败、``2`` 校验有错。
 """
@@ -29,7 +29,7 @@ from .config import (
     resolve_settings,
     write_config_template,
 )
-from .errors import AIPlayError, APIError, ScriptError
+from .errors import AutoLCDEError, APIError, ScriptError
 from .ir import sanitize_title
 from .llm import make_client
 from .paths import projects_root
@@ -117,7 +117,7 @@ def cmd_init(args) -> int:
     _out("  1) 把密钥填进环境变量（推荐）或该文件的 \"apiKey\" 字段：")
     _out("       $env:DEEPSEEK_API_KEY = \"sk-...\"")
     _out("  2) 验证连通性：")
-    _out("       python tools/aiplay.py doctor --ping")
+    _out("       python tools/autoLCDE.py doctor --ping")
     _out("")
     _out("提示：该文件可能含密钥，别提交到版本库。")
     return EXIT_OK
@@ -153,7 +153,7 @@ def cmd_providers(args) -> int:
 def cmd_doctor(args) -> int:
     path = config_path(args.config)
     ok = True
-    _out("aiplay %s" % __version__)
+    _out("autoLCDE %s" % __version__)
     _out("")
     try:
         from . import paths
@@ -192,7 +192,7 @@ def cmd_doctor(args) -> int:
             _out("✗ 调用失败：%s" % exc)
             _out("  建议：%s" % exc.hint)
             return EXIT_ERROR
-        except AIPlayError as exc:
+        except AutoLCDEError as exc:
             _out("✗ %s" % exc)
             return EXIT_ERROR
     _out("")
@@ -266,8 +266,8 @@ def _premise_of(args) -> str:
 
 
 def _slug(text: str) -> str:
-    clean = sanitize_title(text or "aiplay项目", fallback="aiplay项目")
-    return clean.replace(" ", "")[:24] or "aiplay项目"
+    clean = sanitize_title(text or "autoLCDE项目", fallback="autoLCDE项目")
+    return clean.replace(" ", "")[:24] or "autoLCDE项目"
 
 
 def _make_logger(args):
@@ -401,7 +401,7 @@ def cmd_plan(args) -> int:
     _out("")
     _out("已写出 %s" % path)
     _out("审一遍，满意就把这份骨架直接拿去写分场（概念阶段不再重复调用 API）：")
-    _out("  python tools/aiplay.py gen --concept \"%s\"" % path)
+    _out("  python tools/autoLCDE.py gen --concept \"%s\"" % path)
     return EXIT_OK
 
 
@@ -438,13 +438,13 @@ def cmd_web(args) -> int:
 # --------------------------------------------------------------------------- #
 
 def cmd_pack(args) -> int:
-    """把 aiplay 打成可以单独拷走的独立工具包（便携目录 + zip + 单文件 .pyz）。"""
+    """把 autoLCDE 打成可以单独拷走的独立工具包（便携目录 + zip + 单文件 .pyz）。"""
     from .package import build_package
     from .paths import workspace_root
 
     log = _make_logger(args)
     out = Path(args.out) if args.out else (workspace_root() / "dist")
-    _out("aiplay %s —— 打包独立工具" % __version__)
+    _out("autoLCDE %s —— 打包独立工具" % __version__)
     _out("产出目录：%s" % out)
     _out("")
     try:
@@ -464,7 +464,7 @@ def cmd_pack(args) -> int:
         _out("  %s" % result.example)
     if result.exe_path:
         _out("")
-        _out("免装 Python 的 exe（直接 `aiplay.exe --help`，收件人机器上不需要 Python）：")
+        _out("免装 Python 的 exe（直接 `autoLCDE.exe --help`，收件人机器上不需要 Python）：")
         _out("  %s" % result.exe_path)
     if result.checks:
         _out("")
@@ -483,9 +483,9 @@ def cmd_pack(args) -> int:
     if any(item.get("skipped") for item in result.checks):
         _out("○ 有检查被跳过（见上方说明），分发前请在普通终端里补验一次。")
     _out("用法：解压后")
-    _out("  python aiplay.py doctor --ping")
-    _out("  python aiplay.py gen --premise \"...\"")
-    _out("或直接跑单文件版：python aiplay.pyz --help")
+    _out("  python autoLCDE.py doctor --ping")
+    _out("  python autoLCDE.py gen --premise \"...\"")
+    _out("或直接跑单文件版：python autoLCDE.pyz --help")
     if result.exe_path:
         _out("或直接跑 exe：%s --help（收件人机器上不需要 Python）" % result.exe_path.name)
     return EXIT_OK
@@ -497,18 +497,18 @@ def cmd_pack(args) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="aiplay",
+        prog="autoLCDE",
         description="%s —— 接外部大模型 API 的 LCDE 剧本生成器" % GENERATOR,
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""\
 例子：
-  python tools/aiplay.py providers
-  python tools/aiplay.py init
-  python tools/aiplay.py doctor --ping
-  python tools/aiplay.py gen --premise "末班车停了十年，还有人每天来等" --scenes 6
-  python tools/aiplay.py plan --premise "..."            # 只出设定与场次表
-  python tools/aiplay.py compile projects\\末班雪\\剧本.json
-  python tools/aiplay.py web
+  python tools/autoLCDE.py providers
+  python tools/autoLCDE.py init
+  python tools/autoLCDE.py doctor --ping
+  python tools/autoLCDE.py gen --premise "末班车停了十年，还有人每天来等" --scenes 6
+  python tools/autoLCDE.py plan --premise "..."            # 只出设定与场次表
+  python tools/autoLCDE.py compile projects\\末班雪\\剧本.json
+  python tools/autoLCDE.py web
 """)
     parser.add_argument("--config", help="配置文件路径（默认 %s）" % DEFAULT_CONFIG_PATH)
     parser.add_argument("--provider", help="提供方：%s" % ", ".join(sorted(PROVIDERS)))
@@ -526,7 +526,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command")
 
     p = sub.add_parser("init", help="写出配置文件模板")
-    p.add_argument("-o", "--output", help="输出路径（默认仓库根 aiplay.config.json）")
+    p.add_argument("-o", "--output", help="输出路径（默认仓库根 autoLCDE.config.json）")
     p.add_argument("--force", action="store_true", help="覆盖已有文件")
     p.set_defaults(func=cmd_init)
 
@@ -540,7 +540,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("gen", help="一条命令：生成剧本 → 编译 → 占位素材 → 游戏文件 → 校验")
     _add_brief_args(p)
     p.add_argument("--out", help="产出目录（默认 projects\\<标题>）")
-    p.add_argument("--concept", help="复用 aiplay plan 产出的概念.json，跳过概念阶段的 API 调用")
+    p.add_argument("--concept", help="复用 autoLCDE plan 产出的概念.json，跳过概念阶段的 API 调用")
     p.add_argument("--save-dir", help="游戏文件输出目录（默认 <产出目录>\\save）")
     p.add_argument("--json-name", help="规范文档文件名（默认 <标题>.json）")
     p.add_argument("--no-build", action="store_true", help="只生成 JSON，不写游戏文件、不校验")
@@ -567,7 +567,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.set_defaults(func=cmd_plan)
 
     p = sub.add_parser("compile", help="从 剧本.json 重新编译（不调 API）")
-    p.add_argument("script", help="aiplay 的剧本 IR（剧本.json）")
+    p.add_argument("script", help="autoLCDE 的剧本 IR（剧本.json）")
     p.add_argument("--out", help="产出目录（默认 IR 所在目录）")
     p.add_argument("--save-dir", help="游戏文件输出目录")
     p.add_argument("--no-rebuild", action="store_true", help="只写 JSON 与文档，不写游戏文件")
@@ -587,7 +587,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--no-zip", action="store_true", help="不生成 zip")
     p.add_argument("--no-pyz", action="store_true", help="不生成单文件 .pyz")
     p.add_argument("--exe", action="store_true",
-                   help="额外冻结一个免装 Python 的 aiplay.exe（需要 PyInstaller）")
+                   help="额外冻结一个免装 Python 的 autoLCDE.exe（需要 PyInstaller）")
     p.add_argument("--exe-python", help="用哪个解释器跑 PyInstaller（默认当前解释器）")
     p.add_argument("--no-verify", action="store_true",
                    help="跳过打包自检（不建议：自检会在新目录里真跑一遍）")
@@ -629,7 +629,7 @@ def main(argv=None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     if getattr(args, "mock_flaws", None) is None:
-        args.mock_flaws = int(os.environ.get("AIPLAY_MOCK_FLAWS") or 0)
+        args.mock_flaws = int(os.environ.get("AUTOLCDE_MOCK_FLAWS") or 0)
     if not getattr(args, "func", None):
         parser.print_help()
         return EXIT_OK
@@ -644,7 +644,7 @@ def main(argv=None) -> int:
     except ScriptError as exc:
         sys.stderr.write("剧本错误：%s\n" % exc)
         return EXIT_ERROR
-    except AIPlayError as exc:
+    except AutoLCDEError as exc:
         sys.stderr.write("错误：%s\n" % exc)
         return EXIT_ERROR
     except KeyboardInterrupt:

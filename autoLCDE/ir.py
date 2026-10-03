@@ -6,10 +6,10 @@
 
 所以这一层统一做：**别名归一 → 引用解析 → 越界降级 → 记录 warning**。
 能安全修的都修掉并如实记账；修不了的（比如 ``raw`` 手写命令）
-留给 :mod:`aiplay.compile` 原样透传，最终由 ``lcde validate`` 兜底。
+留给 :mod:`autoLCDE.compile` 原样透传，最终由 ``lcde validate`` 兜底。
 
 IR 可以直接序列化成 ``剧本.json``（字段名与提示词里描述的一致），
-用户手工改完再 ``aiplay compile`` 即可，不必重调 API。
+用户手工改完再 ``autoLCDE compile`` 即可，不必重调 API。
 """
 
 from __future__ import annotations
@@ -330,7 +330,7 @@ class Screenplay:
     # -- 序列化 ------------------------------------------------------------ #
     def to_dict(self) -> dict:
         return {
-            "format": "aiplay-script",
+            "format": "autolcde-script",
             "version": 1,
             "kind": "screenplay",
             "title": self.title,

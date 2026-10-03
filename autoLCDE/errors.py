@@ -1,4 +1,4 @@
-"""aiplay 的异常类型。
+"""autoLCDE 的异常类型。
 
 分三类，方便调用方按「该重试还是该改配置」区别处理：
 
@@ -10,15 +10,15 @@
 from __future__ import annotations
 
 
-class AIPlayError(Exception):
-    """aiplay 的错误基类。"""
+class AutoLCDEError(Exception):
+    """autoLCDE 的错误基类。"""
 
 
-class ConfigError(AIPlayError):
+class ConfigError(AutoLCDEError):
     """配置或密钥问题（缺 key、base_url 不合法等）。"""
 
 
-class APIError(AIPlayError):
+class APIError(AutoLCDEError):
     """调用外部 API 失败。
 
     ``retryable`` 不给时按状态码推断：网络层错误（没有状态码）与限流、5xx 值得重试，
@@ -51,7 +51,7 @@ class APIError(AIPlayError):
         return "检查请求参数（模型名、max_tokens、response_format 支持情况）"
 
 
-class ScriptError(AIPlayError):
+class ScriptError(AutoLCDEError):
     """模型返回的内容不是可用的剧本结构。"""
 
     def __init__(self, message: str, *, raw: str = "") -> None:

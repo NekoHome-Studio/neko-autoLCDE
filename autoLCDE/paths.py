@@ -5,14 +5,14 @@
 ============ ============================================ ==========================
 模式         判定                                          默认落点
 ============ ============================================ ==========================
-仓库模式     ``<LDCEROOT>/tools/aiplay/``，上级有 SPEC.md  产出 → ``<LDCEROOT>/projects``
+仓库模式     ``<LDCEROOT>/tools/autoLCDE/``，上级有 SPEC.md  产出 → ``<LDCEROOT>/projects``
 独立模式     其余情形（分发包 / 单文件 .pyz）              产出 → **当前工作目录**
 ============ ============================================ ==========================
 
 格式内核（``lcde``）按以下顺序寻找，谁先命中用谁：
 
 1. ``<工具根>/_vendor``（若把内核收进子目录）
-2. ``<工具根>``（分发包的常见形态：``aiplay/`` 与 ``lcde/`` 同级）
+2. ``<工具根>``（分发包的常见形态：``autoLCDE/`` 与 ``lcde/`` 同级）
 3. ``<LDCEROOT>/tools``（仓库模式）
 
 单文件 ``.pyz`` 里没有真实目录，``import lcde`` 由 zipimport 直接从归档根解决，
@@ -33,7 +33,7 @@ __all__ = [
     "resolve_config_path", "default_config_path", "describe",
 ]
 
-#: ``aiplay`` 包目录本身。
+#: ``autoLCDE`` 包目录本身。
 PKG_DIR = Path(__file__).resolve().parent
 
 
@@ -58,7 +58,7 @@ TOOL_ROOT = _detect_tool_root()
 REPO_ROOT = TOOL_ROOT.parent
 
 #: 配置文件在工具根下的固定名字。
-CONFIG_NAME = "aiplay.config.json"
+CONFIG_NAME = "autoLCDE.config.json"
 
 
 def is_repo_mode() -> bool:
@@ -102,10 +102,10 @@ def default_config_path() -> Path:
 
 
 def resolve_config_path(explicit: str | os.PathLike | None = None) -> Path:
-    """按 ``--config`` → ``AIPLAY_CONFIG`` → 已存在的候选 → 主候选 解析配置路径。"""
+    """按 ``--config`` → ``AUTOLCDE_CONFIG`` → 已存在的候选 → 主候选 解析配置路径。"""
     if explicit:
         return Path(explicit).expanduser()
-    env = os.environ.get("AIPLAY_CONFIG")
+    env = os.environ.get("AUTOLCDE_CONFIG")
     if env:
         return Path(env).expanduser()
     for candidate in config_candidates():

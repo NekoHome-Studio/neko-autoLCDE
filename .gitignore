@@ -1,6 +1,6 @@
 # 本机配置：可能含 API key，**绝不入库**
-aiplay.config.json
-aiplay.config.local.json
+autoLCDE.config.json
+autoLCDE.config.local.json
 
 # Python
 __pycache__/
@@ -11,7 +11,7 @@ venv/
 .pylibs/
 .wheels/
 
-# 打包产物（用 `python aiplay.py pack` 重新生成）
+# 打包产物（用 `python autoLCDE.py pack` 重新生成）
 dist/
 *.zip
 *.pyz

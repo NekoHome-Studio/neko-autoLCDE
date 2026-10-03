@@ -2,7 +2,7 @@
   "format": "lcde",
   "version": 1,
   "kind": "project",
-  "generator": "aiplay 1.0.0",
+  "generator": "autoLCDE 1.1.0",
   "characters": [
     {
       "format": "lcde",

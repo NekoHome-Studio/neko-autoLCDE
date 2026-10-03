@@ -3,12 +3,12 @@
 **密钥从不写进代码，也不打印全量。** 取值优先级（高 → 低）：
 
 1. 命令行参数 ``--api-key`` / ``--base-url`` / ``--model`` / ``--provider``
-2. 环境变量（``AIPLAY_API_KEY`` 或各家的 ``DEEPSEEK_API_KEY`` / ``OPENAI_API_KEY`` …）
-3. 配置文件（默认 ``<仓库根>/aiplay.config.json``，可用 ``--config`` 或
-   ``AIPLAY_CONFIG`` 指定）
+2. 环境变量（``AUTOLCDE_API_KEY`` 或各家的 ``DEEPSEEK_API_KEY`` / ``OPENAI_API_KEY`` …）
+3. 配置文件（默认 ``<仓库根>/autoLCDE.config.json``，可用 ``--config`` 或
+   ``AUTOLCDE_CONFIG`` 指定）
 4. 提供方预设（只含 base_url 与默认模型，**不含密钥**）
 
-配置文件长这样（``python tools/aiplay.py init`` 会生成模板）::
+配置文件长这样（``python tools/autoLCDE.py init`` 会生成模板）::
 
     {
       "provider": "deepseek",
@@ -88,7 +88,7 @@ PROVIDERS: dict[str, Provider] = {
     "custom": Provider(
         "custom", "自定义（OpenAI 兼容，必须给 base_url 与 model）",
         "", "",
-        ("AIPLAY_API_KEY",),
+        ("AUTOLCDE_API_KEY",),
         "自建/中转服务；base_url 要写到 /v1 这一层",
     ),
     "mock": Provider(
@@ -171,7 +171,7 @@ def mask_key(key: str) -> str:
 
 
 def config_path(explicit: str | os.PathLike | None = None) -> Path:
-    """配置文件的解析入口（实现在 :func:`aiplay.paths.resolve_config_path`）。"""
+    """配置文件的解析入口（实现在 :func:`autoLCDE.paths.resolve_config_path`）。"""
     return resolve_config_path(explicit)
 
 
@@ -210,7 +210,7 @@ def _env(names) -> tuple[str | None, str]:
 def resolve_settings(args=None, *, require_key: bool = True) -> Settings:
     """把「命令行 + 环境变量 + 配置文件 + 预设」合并成 :class:`Settings`。
 
-    ``require_key=False`` 用于诊断场景（``aiplay doctor``）：缺密钥也照样返回，
+    ``require_key=False`` 用于诊断场景（``autoLCDE doctor``）：缺密钥也照样返回，
     由调用方自己决定怎么报。
     """
     args = args if args is not None else _EmptyArgs()
@@ -219,7 +219,7 @@ def resolve_settings(args=None, *, require_key: bool = True) -> Settings:
 
     provider_name = _first(
         getattr(args, "provider", None),
-        os.environ.get("AIPLAY_PROVIDER"),
+        os.environ.get("AUTOLCDE_PROVIDER"),
         cfg.get("provider"),
         DEFAULT_PROVIDER,
     )
@@ -229,17 +229,17 @@ def resolve_settings(args=None, *, require_key: bool = True) -> Settings:
                           % (provider_name, ", ".join(sorted(PROVIDERS))))
 
     base_url = _first(getattr(args, "base_url", None),
-                      os.environ.get("AIPLAY_BASE_URL"),
+                      os.environ.get("AUTOLCDE_BASE_URL"),
                       cfg.get("baseUrl"), cfg.get("base_url"),
                       preset.base_url if preset else None)
     model = _first(getattr(args, "model", None),
-                   os.environ.get("AIPLAY_MODEL"),
+                   os.environ.get("AUTOLCDE_MODEL"),
                    cfg.get("model"),
                    preset.model if preset else None)
 
     key, source = _env(preset.key_env if preset else ())
     if not key:
-        key, source = _env(("AIPLAY_API_KEY",))
+        key, source = _env(("AUTOLCDE_API_KEY",))
     if not key:
         key = _first(getattr(args, "api_key", None))
         source = "命令行 --api-key" if key else ""
@@ -268,10 +268,10 @@ def resolve_settings(args=None, *, require_key: bool = True) -> Settings:
         base_url=base_url or "",
         model=model or "",
         api_key=key or "",
-        temperature=float(number("temperature", float, "AIPLAY_TEMPERATURE", 1.0)),
-        max_tokens=int(number("max_tokens", int, "AIPLAY_MAX_TOKENS", 8192)),
-        timeout=float(number("timeout", float, "AIPLAY_TIMEOUT", 300.0)),
-        retries=int(number("retries", int, "AIPLAY_RETRIES", 3)),
+        temperature=float(number("temperature", float, "AUTOLCDE_TEMPERATURE", 1.0)),
+        max_tokens=int(number("max_tokens", int, "AUTOLCDE_MAX_TOKENS", 8192)),
+        timeout=float(number("timeout", float, "AUTOLCDE_TIMEOUT", 300.0)),
+        retries=int(number("retries", int, "AUTOLCDE_RETRIES", 3)),
         json_mode=bool(json_mode),
         defaults=dict(cfg.get("defaults") or {}),
         key_source=source,
@@ -283,7 +283,7 @@ def resolve_settings(args=None, *, require_key: bool = True) -> Settings:
     if not settings.model:
         raise ConfigError("没有指定模型：加 --model，或把 model 写进 %s" % path)
     if not settings.api_key and require_key:
-        env_hint = " 或 ".join(preset.key_env) if preset and preset.key_env else "AIPLAY_API_KEY"
+        env_hint = " 或 ".join(preset.key_env) if preset and preset.key_env else "AUTOLCDE_API_KEY"
         raise ConfigError(
             "没有找到 API 密钥。三种做法任选其一：\n"
             "  1) 设环境变量：  $env:%s = \"sk-...\"\n"

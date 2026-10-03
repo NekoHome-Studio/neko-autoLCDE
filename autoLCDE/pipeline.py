@@ -229,7 +229,7 @@ class Pipeline:
 
     # -- ② 分场 ------------------------------------------------------------ #
     def _concept_from_file(self, result: RunResult) -> dict:
-        """复用 ``aiplay plan`` 产出的概念表：审过的骨架不该再让模型重掷一次。"""
+        """复用 ``autoLCDE plan`` 产出的概念表：审过的骨架不该再让模型重掷一次。"""
         path = Path(self.options.concept_path)
         if not path.is_file():
             raise ScriptError("找不到概念文件：%s" % path)
@@ -313,7 +313,7 @@ class Pipeline:
 
         artifacts = {
             json_name: "LCDE 规范文档（project：角色 + 剧本，可被 lcde 直接构建）",
-            "剧本.json": "剧本中间表示（IR），可手工编辑后用 aiplay compile 重新编译",
+            "剧本.json": "剧本中间表示（IR），可手工编辑后用 autoLCDE compile 重新编译",
             "raw/剧本raw.txt": "人读剧本（△动作 / 台词 / 字幕 / 分镜重点）",
             "立绘清单.md": "交给美术的立绘、背景、头像规格表",
             "分镜备注.md": "引擎表达不了的运镜与音频需求清单",
@@ -560,7 +560,7 @@ def validate_entities(document: dict, save_dir) -> list:
 
 def compile_existing(ir_path, *, save_dir=None, out_dir=None, log=None,
                      stage_targets: dict | None = None, rebuild: bool = True) -> RunResult:
-    """``aiplay compile`` 的实现：读 ``剧本.json`` → 编译 → 写游戏文件 → 校验。
+    """``autoLCDE compile`` 的实现：读 ``剧本.json`` → 编译 → 写游戏文件 → 校验。
 
     改台词之后走这条路**不需要再调 API**，也不消耗 token。
     """
@@ -570,7 +570,7 @@ def compile_existing(ir_path, *, save_dir=None, out_dir=None, log=None,
         raise ScriptError("找不到剧本文件：%s" % source)
     data = json.loads(source.read_text(encoding="utf-8-sig"))
     if data.get("kind") == "project":
-        raise ScriptError("这是 LCDE 规范文档，不是 aiplay 的剧本 IR；"
+        raise ScriptError("这是 LCDE 规范文档，不是 autoLCDE 的剧本 IR；"
                           "要用 lcde 的 `project build` 处理它")
     play = Screenplay.from_dict(data)
 

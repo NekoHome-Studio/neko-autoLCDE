@@ -1,18 +1,18 @@
-"""打包器 —— 把 aiplay「推出去」成一个**独立可搬走的工具包**。
+"""打包器 —— 把 autoLCDE「推出去」成一个**独立可搬走的工具包**。
 
 产物（默认落在 ``<产出基准>/dist``，仓库模式下就是 ``<仓库根>/dist``）：
 
 ============================ ====================================================
-``aiplay-<版本>/``            便携目录：解压即用，``python aiplay.py …``
-``aiplay-<版本>.zip``         同上的压缩包（UTF-8 文件名，Windows 资源管理器可解）
-``aiplay.pyz``                单文件版：``python aiplay.pyz …``，一个文件走天下
+``autoLCDE-<版本>/``            便携目录：解压即用，``python autoLCDE.py …``
+``autoLCDE-<版本>.zip``         同上的压缩包（UTF-8 文件名，Windows 资源管理器可解）
+``autoLCDE.pyz``                单文件版：``python autoLCDE.pyz …``，一个文件走天下
 ============================ ====================================================
 
 打包内容与「为什么是独立的」：
 
-* ``aiplay/`` —— 生成器本体；
+* ``autoLCDE/`` —— 生成器本体；
 * ``lcde/`` + ``lcde.py`` + ``schema/`` —— **内置格式内核**（来自 ``tools/lcde``，
-  原样拷贝、不做改动）。aiplay 从不重复实现格式细节，但它离不开内核，
+  原样拷贝、不做改动）。autoLCDE 从不重复实现格式细节，但它离不开内核，
   所以内核跟着一起走；附带的好处是独立包里也能直接用
   ``python lcde.py validate`` 检查游戏存档目录。
 
@@ -41,7 +41,7 @@ from .paths import PKG_DIR, TOOL_ROOT, lcde_roots, lcde_source_root, workspace_r
 __all__ = ["PackResult", "build_package", "package_name"]
 
 #: 便携目录名（带版本号，方便并存多个版本）。
-PACKAGE_PREFIX = "aiplay"
+PACKAGE_PREFIX = "autoLCDE"
 
 #: 覆盖前用来确认「这个目录是我们自己上一次打的包」的标记文件。
 MARKER = "build-info.json"
@@ -53,17 +53,17 @@ EXAMPLE_NAME = "末班雪（离线示例）"
 ZIPAPP_MAIN = '''\
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""aiplay 单文件版入口。
+"""autoLCDE 单文件版入口。
 
-    python aiplay.pyz --help
-    python aiplay.pyz --provider mock gen --premise "..."
+    python autoLCDE.pyz --help
+    python autoLCDE.pyz --provider mock gen --premise "..."
 
 包内自带 LCDE 格式内核，不需要仓库、不需要安装。
 """
 
 import sys
 
-from aiplay.cli import main
+from autoLCDE.cli import main
 
 if __name__ == "__main__":
     sys.exit(main())
@@ -73,11 +73,11 @@ if __name__ == "__main__":
 DIR_MAIN = '''\
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""便携目录入口：``python <本目录>`` 等价于 ``python aiplay.py``。"""
+"""便携目录入口：``python <本目录>`` 等价于 ``python autoLCDE.py``。"""
 
 import sys
 
-from aiplay.cli import main
+from autoLCDE.cli import main
 
 if __name__ == "__main__":
     sys.exit(main())
@@ -91,7 +91,7 @@ SHEBANG = b"#!/usr/bin/env python3\n"
 LAUNCHER_CMD = """\
 @echo off
 rem ===========================================================================
-rem  aiplay launcher - finds a Python interpreter and forwards all arguments.
+rem  autoLCDE launcher - finds a Python interpreter and forwards all arguments.
 rem  ASCII only on purpose: this file must render correctly in any console code page.
 rem ===========================================================================
 setlocal
@@ -103,12 +103,12 @@ if not defined PY (
   where py >nul 2>nul && set "PY=py -3"
 )
 if not defined PY (
-  echo [aiplay] Python not found. Install Python 3.9+ and make sure "python" is on PATH.
-  echo [aiplay] Download: https://www.python.org/downloads/
+  echo [autoLCDE] Python not found. Install Python 3.9+ and make sure "python" is on PATH.
+  echo [autoLCDE] Download: https://www.python.org/downloads/
   exit /b 1
 )
 
-%PY% "%HERE%aiplay.py" %*
+%PY% "%HERE%autoLCDE.py" %*
 exit /b %ERRORLEVEL%
 """
 
@@ -185,7 +185,7 @@ def _find_first(*candidates: Path | None) -> Path | None:
 
     打包器要能在**两种布局**里找到素材：仓库里（``README.standalone.md`` /
     ``launcher.cmd`` 在包目录下）和上一个独立包里（README 已改名为 ``README.md``、
-    启动器叫 ``aiplay.cmd``、模板文件不存在）。找不到就返回 None，由调用方降级处理。
+    启动器叫 ``autoLCDE.cmd``、模板文件不存在）。找不到就返回 None，由调用方降级处理。
     """
     for candidate in candidates:
         if candidate is not None and Path(candidate).is_file():
@@ -203,7 +203,7 @@ def _standalone_readme() -> Path | None:
 
 
 def _license_source() -> Path | None:
-    """许可文件：仓库里是 ``aiplay/LICENSE``，独立包里在包根。"""
+    """许可文件：仓库里是 ``autoLCDE/LICENSE``，独立包里在包根。"""
     return _find_first(PKG_DIR / "LICENSE", TOOL_ROOT / "LICENSE")
 
 
@@ -260,7 +260,7 @@ def build_package(*, out_dir: Path | str | None = None, version: str = __version
 
     # ---- 生成器本体 ------------------------------------------------------ #
     for path in _py_files(PKG_DIR):
-        copy(path, stage / "aiplay" / path.name)
+        copy(path, stage / "autoLCDE" / path.name)
 
     readme = _standalone_readme()
     if readme is not None:
@@ -268,10 +268,10 @@ def build_package(*, out_dir: Path | str | None = None, version: str = __version
     else:                                                     # pragma: no cover
         result.warnings.append("没找到独立版 README，包里的 README.md 只能留空")
         (stage / "README.md").write_text(
-            "# aiplay\n\nLCDE 剧本生成器（独立版）。`python aiplay.py --help`\n",
+            "# autoLCDE\n\nLCDE 剧本生成器（独立版）。`python autoLCDE.py --help`\n",
             encoding="utf-8")
         count += 1
-    (stage / "aiplay.cmd").write_text(LAUNCHER_CMD, encoding="utf-8", newline="\r\n")
+    (stage / "autoLCDE.cmd").write_text(LAUNCHER_CMD, encoding="utf-8", newline="\r\n")
     written += len(LAUNCHER_CMD.encode("utf-8"))
     count += 1
 
@@ -291,14 +291,14 @@ def build_package(*, out_dir: Path | str | None = None, version: str = __version
         copy(path, stage / "schema" / path.name)
 
     # ---- 入口 ------------------------------------------------------------ #
-    entry = TOOL_ROOT / "aiplay.py"
+    entry = TOOL_ROOT / "autoLCDE.py"
     if entry.is_file():
-        copy(entry, stage / "aiplay.py")
+        copy(entry, stage / "autoLCDE.py")
     else:                                                     # 从独立包里再打包
-        (stage / "aiplay.py").write_text(
+        (stage / "autoLCDE.py").write_text(
             "#!/usr/bin/env python3\n# -*- coding: utf-8 -*-\n"
-            '"""aiplay 命令行入口。"""\n\nimport sys\n\n'
-            "from aiplay.cli import main\n\n"
+            '"""autoLCDE 命令行入口。"""\n\nimport sys\n\n'
+            "from autoLCDE.cli import main\n\n"
             'if __name__ == "__main__":\n    sys.exit(main())\n', encoding="utf-8")
     (stage / "__main__.py").write_text(DIR_MAIN, encoding="utf-8")
     written += len(DIR_MAIN.encode("utf-8"))
@@ -314,7 +314,7 @@ def build_package(*, out_dir: Path | str | None = None, version: str = __version
         "lcdeVersion": LCDE_VERSION,
         "formatVersion": FORMAT_VERSION,
         "license": "MIT",
-        "entry": "aiplay.py",
+        "entry": "autoLCDE.py",
         "singleFile": "%s.pyz" % PACKAGE_PREFIX,
         "note": "包内自带 LCDE 格式内核（lcde/），可脱离 LCDE 仓库独立运行。",
     }
@@ -367,7 +367,7 @@ def _run(cmd: list, cwd: Path, log_path: Path, *, env_extra: dict | None = None)
     env = dict(os.environ)
     env["PYTHONIOENCODING"] = "utf-8"
     env["PYTHONDONTWRITEBYTECODE"] = "1"
-    for name in ("AIPLAY_CONFIG", "AIPLAY_PROVIDER", "AIPLAY_API_KEY",
+    for name in ("AUTOLCDE_CONFIG", "AUTOLCDE_PROVIDER", "AUTOLCDE_API_KEY",
                  "DEEPSEEK_API_KEY", "OPENAI_API_KEY",
                  # 产物不该随构建环境漂移：外部 PYTHONPATH 里可能挂着一个
                  # 版本不匹配的 Pillow（会让占位图丢掉文字标签）或别的同名包。
@@ -408,7 +408,7 @@ def _make_example(stage: Path, log, result: PackResult) -> Path:
     relative = Path("examples") / EXAMPLE_NAME
     out = stage / relative
     log("info", "在包里跑一次离线生成，产出示例……")
-    code = _run([sys.executable, stage / "aiplay.py", "--provider", "mock", "gen",
+    code = _run([sys.executable, stage / "autoLCDE.py", "--provider", "mock", "gen",
                  "--premise", "四等小站的末班车停了十年，可每个雪夜都有人来等",
                  "--scenes", "3", "--scenes-per-call", "1", "--out", str(relative)],
                 cwd=stage, log_path=stage / "build-example.log")
@@ -428,14 +428,14 @@ def _make_example(stage: Path, log, result: PackResult) -> Path:
 
 def _verify_stage(stage: Path, log, result: PackResult) -> None:
     """便携目录自检：``--help`` 能出、能列出提供方、能看到运行模式。"""
-    code = _run([sys.executable, stage / "aiplay.py", "--provider", "mock", "providers"],
+    code = _run([sys.executable, stage / "autoLCDE.py", "--provider", "mock", "providers"],
                 cwd=stage, log_path=stage / ".check.log")
     text = (stage / ".check.log").read_text(encoding="utf-8", errors="replace")
     (stage / ".check.log").unlink(missing_ok=True)
     _record(result, log, "便携目录可运行", code == 0 and "deepseek" in text,
             "退出码 %d，输出 %d 字符" % (code, len(text)))
 
-    code = _run([sys.executable, stage / "aiplay.py", "--provider", "mock", "doctor"],
+    code = _run([sys.executable, stage / "autoLCDE.py", "--provider", "mock", "doctor"],
                 cwd=stage, log_path=stage / ".check2.log")
     text = (stage / ".check2.log").read_text(encoding="utf-8", errors="replace")
     (stage / ".check2.log").unlink(missing_ok=True)
@@ -478,10 +478,10 @@ def _pyinstaller_hint() -> str:
 
 def _build_exe(stage: Path, dist: Path, log, result: PackResult,
                *, python_exe: str | None = None) -> Path | None:
-    """把便携目录里的 ``aiplay.py`` 冻结成一个免装 Python 的 exe。
+    """把便携目录里的 ``autoLCDE.py`` 冻结成一个免装 Python 的 exe。
 
-    产物落在 ``dist/aiplay.exe``（onefile）。PyInstaller 会把 Python 运行时、
-    ``aiplay/``、``lcde/`` 与 ``schema/`` 一起塞进可执行文件里，
+    产物落在 ``dist/autoLCDE.exe``（onefile）。PyInstaller 会把 Python 运行时、
+    ``autoLCDE/``、``lcde/`` 与 ``schema/`` 一起塞进可执行文件里，
     收件人机器上**不需要装 Python**。
     """
     python = str(python_exe or sys.executable)
@@ -501,12 +501,12 @@ def _build_exe(stage: Path, dist: Path, log, result: PackResult,
         "--distpath", str(dist),
         "--workpath", str(work),
         "--specpath", str(work),
-        # 让静态分析找得到 aiplay / lcde（入口脚本是靠 sys.path 动态导入的）
+        # 让静态分析找得到 autoLCDE / lcde（入口脚本是靠 sys.path 动态导入的）
         "--paths", str(stage),
         # lcde schema 之类的子命令要读这个数据文件（源路径必须绝对：
         # PyInstaller 按 spec 所在目录解析相对路径，工作目录是 stage 也没用）
         "--add-data", "%s%s%s" % (stage / "schema", os.pathsep, "schema"),
-        str(stage / "aiplay.py"),
+        str(stage / "autoLCDE.py"),
     ]
     log("info", "用 PyInstaller 冻结 exe（解释器 %s）……" % python)
     code = _run(args, cwd=stage, log_path=log_file,
@@ -615,8 +615,8 @@ def _make_pyz(dist: Path, stage: Path, log, result: PackResult) -> Path:
     target.unlink(missing_ok=True)
     log("info", "打包单文件版 %s……" % target.name)
     entries: list[tuple[str, Path]] = []
-    for path in sorted((stage / "aiplay").glob("*.py")):
-        entries.append(("aiplay/%s" % path.name, path))
+    for path in sorted((stage / "autoLCDE").glob("*.py")):
+        entries.append(("autoLCDE/%s" % path.name, path))
     for path in sorted((stage / "lcde").glob("*.py")):
         entries.append(("lcde/%s" % path.name, path))
     for path in sorted((stage / "schema").glob("*.json")):

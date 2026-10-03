@@ -206,7 +206,7 @@ class ChatClient:
                 "Content-Type": "application/json",
                 "Authorization": "Bearer %s" % self.settings.api_key,
                 "Accept": "application/json",
-                "User-Agent": "lcde-aiplay/1.0",
+                "User-Agent": "lcde-autoLCDE/1.0",
             },
         )
         try:

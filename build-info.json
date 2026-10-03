@@ -1,12 +1,12 @@
 {
-  "name": "aiplay",
-  "version": "1.0.0",
-  "builtAt": "2026-10-03T14:54:14",
+  "name": "autoLCDE",
+  "version": "1.1.0",
+  "builtAt": "2026-10-03T15:07:44",
   "lcdeVersion": "1.0.0",
   "formatVersion": 1,
   "license": "MIT",
-  "entry": "aiplay.py",
-  "singleFile": "aiplay.pyz",
+  "entry": "autoLCDE.py",
+  "singleFile": "autoLCDE.pyz",
   "note": "包内自带 LCDE 格式内核（lcde/），可脱离 LCDE 仓库独立运行。",
   "builtFrom": "（公开构建，已省略本机路径）"
 }
